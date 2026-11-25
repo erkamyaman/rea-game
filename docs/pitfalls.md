@@ -28,5 +28,9 @@ error from the edit itself.
 `export const` line, so `export const W = 640, H = 480` exported `W` only, `H` was `undefined` in `docs/play/paddles.html`
 and the canvas had no height, with no error. Export one name per line, and open the bundled page, not only `ports/web`.
 
+**`in` found keys the port never printed.** `firstDiff` checked `k in a`, which is true for inherited names, so a port
+that printed a `constructor` key was reported as `.constructor: undefined != 1` instead of a missing key. Check own keys
+with `Object.hasOwn`; `test/compare.test.mjs` covers it.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.
