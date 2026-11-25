@@ -140,15 +140,19 @@ import { Bricks, KEY, COLS } from "./bricks.mjs";
 
   // ---- input: keys go straight to the rules, at the moment they happen
   const CODES = { ArrowLeft: KEY.left, ArrowRight: KEY.right, a: KEY.a, A: KEY.a, d: KEY.d, D: KEY.d, " ": KEY.space, Enter: KEY.enter, Escape: KEY.esc, ArrowUp: KEY.up, ArrowDown: KEY.down };
+  // Enter and Space on a focused level button belong to the button (it changes the level), not to the game; so does
+  // their keyup, which arrives after the click has moved focus away
+  const buttonKeys = new Set();
   document.addEventListener("keydown", (e) => {
     const k = CODES[e.key];
     if (k === undefined) return;
+    if (e.target.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) { buttonKeys.add(e.key); return; }
     e.preventDefault();
     if (!e.repeat) game.keyDown(k);
   });
   document.addEventListener("keyup", (e) => {
     const k = CODES[e.key];
-    if (k === undefined) return;
+    if (k === undefined || buttonKeys.delete(e.key)) return;
     e.preventDefault();
     const wasGame = game.state === "game";
     if (k === KEY.esc && wasGame) game.answer = window.confirm("Give up this game?");
@@ -158,8 +162,9 @@ import { Bricks, KEY, COLS } from "./bricks.mjs";
   });
   const tap = (code) => { game.keyDown(code); game.keyUp(code); };
   $("msg").addEventListener("pointerdown", (e) => { if (e.target.tagName === "BUTTON") return; e.preventDefault(); tap(KEY.space); });
-  $("prev").addEventListener("click", () => tap(KEY.down));
-  $("next").addEventListener("click", () => tap(KEY.up));
+  // let go of focus after a click, so the next Space plays instead of pressing the button again
+  $("prev").addEventListener("click", (e) => { tap(KEY.down); e.currentTarget.blur(); });
+  $("next").addEventListener("click", (e) => { tap(KEY.up); e.currentTarget.blur(); });
   // drag on the court to move the paddle (its centre follows the finger)
   cv.addEventListener("pointermove", (e) => {
     if (e.pointerType === "mouse" && e.buttons === 0) return;
