@@ -19,6 +19,14 @@ case "differed". Compare parsed values (`lib/compare.mjs`), never `JSON.stringif
 Replace only the file name in the sums line, and look at a new workflow's log for the `verify` output, not just its
 colour.
 
+**`in` found keys the port never printed.** `firstDiff` checked `k in a`, which is true for inherited names, so a port
+that printed a `constructor` key was reported as `.constructor: undefined != 1` instead of a missing key. Check own keys
+with `Object.hasOwn`; `test/compare.test.mjs` covers it.
+
+**One failing build hid every other result.** The exception from a port's build ended `verify all`, so on a machine
+without cargo nothing after `2048 / bevy` was checked and there was no summary. A port that cannot run is that port's
+failure (`verifyGames` in `lib/verify.mjs`); the run goes on and ends with one line per port.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.
 
