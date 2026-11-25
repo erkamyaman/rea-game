@@ -45,6 +45,17 @@
   <p class="keys"><kbd>1</kbd> <kbd>2</kbd> <kbd>0</kbd> start with one player, two, or none &middot; left paddle <kbd>Q</kbd> <kbd>A</kbd> (or <kbd>&uarr;</kbd> <kbd>&darr;</kbd>) &middot; right paddle <kbd>P</kbd> <kbd>L</kbd> &middot; <kbd>Esc</kbd> give up. Hold a paddle on the left half of the court to move it by touch. A paddle moving as it meets the ball adds spin; the ball speeds up the longer a rally lasts.</p>
 </main>
 <script>
+// A browser will not load ./paddles.mjs for a page opened straight from disk (file://), so the buttons would do nothing.
+// The game marks the page ready; if it never did, say what to open instead. The bundled page inlines the rules and is
+// always ready by now.
+addEventListener("load", () => {
+  if (document.documentElement.dataset.ready) return;
+  document.getElementById("msgtitle").textContent = "Open docs/play/paddles.html";
+  document.getElementById("msgsub").textContent = "This page loads paddles.mjs, which browsers block for a file opened from disk. docs/play/paddles.html is the same game in one file, or serve this folder over http.";
+  document.getElementById("modes").style.display = "none";
+});
+</script>
+<script>
 (() => {
 const __mod0 = (() => {
 // Paddles: the rules of the two-paddle ball game, as pure logic. No DOM, no real clock, no Math.random:
@@ -385,6 +396,7 @@ const { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS } = __mod0;
   }
   document.addEventListener("visibilitychange", () => { last = null; if (document.hidden) letGo(); });
   requestAnimationFrame(frame);
+  document.documentElement.dataset.ready = "1";
 })();
 
 })();
