@@ -49,6 +49,17 @@
   </div>
   <p class="keys"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> (or <kbd>A</kbd> <kbd>D</kbd>) move &middot; <kbd>Space</kbd> play, or launch before the count ends &middot; <kbd>&uarr;</kbd> <kbd>&darr;</kbd> pick a level &middot; <kbd>Esc</kbd> give up. Where the ball meets the paddle sets its angle; it speeds up with every brick. Clear a level for an extra ball.</p>
 </main>
+<script>
+// A browser will not load ./bricks.mjs for a page opened straight from disk (file://), so nothing would start.
+// The game marks the page ready; if it never did, say what to open instead. The bundled page inlines the rules and is
+// always ready by now.
+addEventListener("load", () => {
+  if (document.documentElement.dataset.ready) return;
+  document.getElementById("msgtitle").textContent = "Open docs/play/bricks.html";
+  document.getElementById("msgsub").textContent = "This page loads bricks.mjs, which browsers block for a file opened from disk. docs/play/bricks.html is the same game in one file, or serve this folder over http.";
+  document.getElementById("levels").style.display = "none";
+});
+</script>
 <script type="module">
 import { Bricks, KEY, COLS } from "./bricks.mjs";
 
@@ -175,6 +186,7 @@ import { Bricks, KEY, COLS } from "./bricks.mjs";
   document.addEventListener("visibilitychange", () => { last = null; if (document.hidden) letGo(); });
   window.addEventListener("blur", letGo);
   requestAnimationFrame(frame);
+  document.documentElement.dataset.ready = "1";
 })();
 </script>
 </body>
