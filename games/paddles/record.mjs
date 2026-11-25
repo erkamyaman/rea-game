@@ -116,7 +116,9 @@ export function analyze(trace, inputs) {
     if (p.playing && s.playing && p.ball.dx !== null && s.scores[0] === p.scores[0] && s.scores[1] === p.scores[1]) {
       if (Math.sign(s.ball.dx) !== Math.sign(p.ball.dx)) {
         c.paddleHits++;
-        const pad = s.ball.dx > 0 ? p.left : p.right;
+        // keys as they were during this step (a person's key events come first in a step); exact when the step is one
+        // frame, an estimate when a long step holds several frames
+        const pad = s.ball.dx > 0 ? s.left : s.right;
         if (pad.up || pad.down) c.spinHits++;
       } else if (Math.sign(s.ball.dy) !== Math.sign(p.ball.dy)) c.wallBounces++;
       c.maxBallSpeed = Math.max(c.maxBallSpeed, Math.abs(s.ball.dx));

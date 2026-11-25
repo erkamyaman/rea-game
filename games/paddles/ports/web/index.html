@@ -56,7 +56,7 @@ addEventListener("load", () => {
 });
 </script>
 <script type="module">
-import { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS } from "./paddles.mjs";
+import { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS, WIN } from "./paddles.mjs";
 
 (function main() {
   const cv = document.getElementById("c"), ctx = cv.getContext("2d");
@@ -85,8 +85,11 @@ import { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS } from "./paddles.
       ctx.beginPath(); ctx.arc(b.x, b.y, RADIUS, 0, Math.PI * 2); ctx.fill();
     }
     $("msg").classList.toggle("off", game.playing);
-    if (!game.playing && game.winner !== null) {
-      $("msgtitle").textContent = (game.winner === 0 ? "Left" : "Right") + " wins " + Math.max(...game.scores) + " to " + Math.min(...game.scores);
+    // the winner stays on record after a new game starts, so name it only while the scores show a finished game
+    if (!game.playing) {
+      $("msgtitle").textContent = game.winner !== null && Math.max(...game.scores) >= WIN
+        ? (game.winner === 0 ? "Left" : "Right") + " wins " + Math.max(...game.scores) + " to " + Math.min(...game.scores)
+        : "Paddles";
     }
   }
 
@@ -102,14 +105,16 @@ import { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS } from "./paddles.
   });
   document.addEventListener("keyup", (e) => { const k = CODES[e.key]; if (k !== undefined) { e.preventDefault(); game.keyUp(k); } });
   for (const b of document.querySelectorAll("#modes button")) b.addEventListener("click", () => { const k = KEY[b.dataset.mode]; game.keyDown(k); game.keyUp(k); b.blur(); });
-  // touch: hold above or below the left paddle to move it
-  let held = null;
-  const release = () => { if (held !== null) { game.keyUp(held); held = null; } };
+  // touch: hold above or below the left paddle to move it; the first finger down owns the paddle until it lifts
+  let held = null, owner = null;
+  const release = (e) => { if (held !== null && (!e || e.pointerId === owner)) { game.keyUp(held); held = null; owner = null; } };
   cv.addEventListener("pointerdown", (e) => {
+    if (held !== null) return;
     const r = cv.getBoundingClientRect();
     if ((e.clientX - r.left) / r.width > 0.5) return;
     const y = ((e.clientY - r.top) / r.height) * H;
     held = y < game.paddles[0].y + PADDLE_H / 2 ? KEY.q : KEY.a;
+    owner = e.pointerId;
     game.keyDown(held);
   });
   for (const ev of ["pointerup", "pointercancel", "pointerleave"]) cv.addEventListener(ev, release);

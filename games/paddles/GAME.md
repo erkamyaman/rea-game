@@ -95,8 +95,10 @@ game's start), `y = 17 + random() * (463 - 17)`, both velocities 157.5 (`dx` sig
 | Q / A | left paddle up / down, if a person holds it | stop that direction |
 | P / L | right paddle up / down, if a person holds it | stop that direction |
 
-Stopping a game hands both paddles back (their keys let go) and keeps the scores, the winner, each paddle's last
-level and its last prediction. Handing a paddle to the computer does not let go of keys already held.
+Stopping a game hands both paddles back to people and keeps the scores, the winner, each paddle's last level and its
+last prediction. Only a paddle the computer held lets go of its keys then; a key a person is still holding stays down
+(hold Q in a two-player game and give up: the left paddle keeps moving up). Handing a paddle to the computer does not
+let go of keys already held either.
 
 ## Randomness (the tape order)
 
@@ -132,12 +134,17 @@ created by `rea-games record paddles` (cases are stored gzipped, 6.6 MB):
 | games started (0 / 1 / 2 people) | 59 (15 / 22 / 22) |
 | games played to 9 / abandoned / abandon declined | 21 / 24 / 6 |
 | points | 337 |
-| paddle hits / with spin / wall bounces | 1,457 / 369 / 2,517 |
+| paddle hits / with spin / wall bounces | 1,457 / 271 (see below) / 2,517 |
 | new computer predictions | 2,865 |
 | computer levels used | 1 to 16 (level 0, behind by 8, never happened) |
 | fastest ball | 667 px/s across |
 | late steps (40 to 500 ms) | 661 |
 | dt values | 16.667 mostly, also 8, 20, 33, 50, 100 ms (fixed per case and mixed per step) |
+
+Spin is read off the traces from the hitting paddle's keys after the step, which is exact when the step is one frame
+(182 of 182 such hits). A step of several frames can hide when the computer let go, so there it is an estimate: counted
+at the moment of each hit in the verified port, 362 of 1,495 hits had spin (the traces also miss hits on a paddle's top
+or bottom and a second hit in one step).
 
 Breaking the port on purpose made `verify` fail: acceleration 8 -> 7.9 (16 of 19 cases failed), the spin of an upward
 paddle swapped (15 of 19), the computer's dead zone 5 -> 6 px (14 of 19).

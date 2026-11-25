@@ -84,7 +84,7 @@ resizing are not recorded, the canvas is only ever 640 x 480, and no Godot or Be
 
 Recorded from the unmodified original (MIT) with the same fake clock as Bricks (its frame loop is a `setInterval`),
 every serve and every computer prediction taped, and "abandon?" answered by the case: 59 games with 0, 1 and 2 people
-(15, 22, 22), 21 played to 9 points, 24 abandoned and 6 abandons declined, 337 points, 1,457 paddle hits (369 with spin),
+(15, 22, 22), 21 played to 9 points, 24 abandoned and 6 abandons declined, 337 points, 1,457 paddle hits (362 with spin),
 2,865 computer predictions over levels 1 to 16, 661 late steps. Breaking the acceleration, the spin rule and the
 computer's dead zone made 16, 15 and 14 of 19 cases fail. Measured on Windows (Node 24, Chromium from Playwright
 1.65.1).
