@@ -26,8 +26,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-555" alt="MIT license">
-  <img src="https://img.shields.io/badge/games-5-2563EB" alt="5 games">
-  <img src="https://img.shields.io/badge/recorded%20inputs-469%2C261-E2862A" alt="469,261 recorded inputs">
+  <img src="https://img.shields.io/badge/games-6-2563EB" alt="6 games">
+  <img src="https://img.shields.io/badge/recorded%20inputs-667%2C561-E2862A" alt="667,561 recorded inputs">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20·%20Codex-6E40C9" alt="Runs in Claude Code and Codex">
 </p>
 
@@ -109,7 +109,7 @@ Needs Node 22. Browser games also need Playwright with Chromium; the Rust ports 
 
 | Target | Status |
 |---|---|
-| Web (canvas, one HTML file, mobile friendly) | every game (2048, Dino, Canvas Bird, Blocks, Bricks), verified |
+| Web (canvas, one HTML file, mobile friendly) | every game (2048, Dino, Canvas Bird, Blocks, Bricks, Paddles), verified |
 | Rust / Bevy | 2048, Dino, Canvas Bird and Blocks as Bevy projects (`dino-core` logic verified through `dino-runner`; the Bevy window itself compiles and ran 25 s under Xvfb, never played) |
 | Godot 4.4 (GDScript) | 2048, Dino, Canvas Bird and Blocks, verified: a headless runner passes all 19 cases. A playable scene (`ports/godot/main.tscn`) loads and takes input in a headless smoke test; its look has not been checked |
 | Unity (C#) | not started |
