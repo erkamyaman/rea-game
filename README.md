@@ -26,8 +26,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-555" alt="MIT license">
-  <img src="https://img.shields.io/badge/games-3-2563EB" alt="3 games">
-  <img src="https://img.shields.io/badge/recorded%20inputs-155%2C453-E2862A" alt="155,453 recorded inputs">
+  <img src="https://img.shields.io/badge/games-5-2563EB" alt="5 games">
+  <img src="https://img.shields.io/badge/recorded%20inputs-469%2C261-E2862A" alt="469,261 recorded inputs">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20·%20Codex-6E40C9" alt="Runs in Claude Code and Codex">
 </p>
 
@@ -48,8 +48,8 @@ Each is written from a behavior spec (`GAME.md`), draws its own art, and passes 
 | Dino | Chrome's offline dinosaur ([copy](https://github.com/wayou/t-rex-runner), BSD-3) | [play it](https://erkamyaman.github.io/rea-games/play/dino.html) | 29 cases, 63,000 frames: web, Godot and Rust (Bevy) ports |
 | Canvas Bird | [giotiskl/Canvas-Bird](https://github.com/giotiskl/Canvas-Bird), MIT | [play it](https://erkamyaman.github.io/rea-games/play/canvas-bird.html) | 30 cases, 68,409 frames: web, Godot and Rust (Bevy) ports |
 | Blocks (falling blocks) | [jakesgordon/javascript-tetris](https://github.com/jakesgordon/javascript-tetris), MIT | `docs/play/blocks.html` | 36 cases, 104,208 frames: web, Godot and Rust (Bevy) ports |
-| Bricks (brick breaking) | [jakesgordon/javascript-breakout](https://github.com/jakesgordon/javascript-breakout), MIT | `docs/play/bricks.html` | 37 cases, 209,600 steps: web port |
-| Paddles (two-paddle ball game) | [jakesgordon/javascript-pong](https://github.com/jakesgordon/javascript-pong), MIT | `docs/play/paddles.html` | 19 cases, 198,300 steps: web port |
+| Bricks (brick breaking) | [jakesgordon/javascript-breakout](https://github.com/jakesgordon/javascript-breakout), MIT | [play it](https://erkamyaman.github.io/rea-games/play/bricks.html) | 37 cases, 209,600 steps: web port |
+| Paddles (two-paddle ball game) | [jakesgordon/javascript-pong](https://github.com/jakesgordon/javascript-pong), MIT | [play it](https://erkamyaman.github.io/rea-games/play/paddles.html) | 19 cases, 198,300 steps: web port |
 
 ## How it works
 
@@ -109,7 +109,7 @@ Needs Node 22. Browser games also need Playwright with Chromium; the Rust ports 
 
 | Target | Status |
 |---|---|
-| Web (canvas, one HTML file, mobile friendly) | all three games, verified |
+| Web (canvas, one HTML file, mobile friendly) | every game (2048, Dino, Canvas Bird, Blocks, Bricks), verified |
 | Rust / Bevy | 2048, Dino, Canvas Bird and Blocks as Bevy projects (`dino-core` logic verified through `dino-runner`; the Bevy window itself compiles and ran 25 s under Xvfb, never played) |
 | Godot 4.4 (GDScript) | 2048, Dino, Canvas Bird and Blocks, verified: a headless runner passes all 19 cases. A playable scene (`ports/godot/main.tscn`) loads and takes input in a headless smoke test; its look has not been checked |
 | Unity (C#) | not started |

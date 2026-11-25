@@ -32,5 +32,13 @@ and the canvas had no height, with no error. Export one name per line, and open 
 that printed a `constructor` key was reported as `.constructor: undefined != 1` instead of a missing key. Check own keys
 with `Object.hasOwn`; `test/compare.test.mjs` covers it.
 
+**One failing build hid every other result.** The exception from a port's build ended `verify all`, so on a machine
+without cargo nothing after `2048 / bevy` was checked and there was no summary. A port that cannot run is that port's
+failure (`verifyGames` in `lib/verify.mjs`); the run goes on and ends with one line per port.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.
+
+**A port rename left stale references behind.** The plain-Rust 2048 runner was replaced by the Bevy port, but
+CONTRIBUTING.md, the `verify` help text and the `package.json` exclusions still named the `rust` port. When a port is
+replaced, grep for the old port name across docs, help text and packaging lists in the same change.
