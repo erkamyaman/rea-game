@@ -21,3 +21,5 @@ colour.
 
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.
+
+**A port rename left stale references behind.** The plain-Rust 2048 runner was replaced by the Bevy port, but CONTRIBUTING.md, the `verify` help text and the `package.json` exclusions still named the `rust` port. When a port is replaced, grep for the old port name across docs, help text and packaging lists in the same change.
