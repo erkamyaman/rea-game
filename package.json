@@ -39,6 +39,7 @@
     "NOTICE",
     "DECISIONS.md",
     "!games/*/ports/rust/target/",
+    "!games/*/ports/bevy/target/",
     "!games/*/ports/**/node_modules/"
   ],
   "engines": {
