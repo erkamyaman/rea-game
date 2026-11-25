@@ -6,23 +6,10 @@
   "plugins": [
     {
       "name": "rea-games",
-      "version": "1.1.0",
-      "description": "Reverse-engineer a game's behavior, rebuild it in any engine, and prove the rebuild matches the original frame by frame.",
-      "source": "./",
-      "author": {
-        "name": "rea-games contributors"
+      "source": {
+        "source": "local",
+        "path": "./"
       },
-      "license": "MIT",
-      "keywords": [
-        "games",
-        "reverse-engineering",
-        "clean-room",
-        "godot",
-        "unity",
-        "bevy",
-        "web",
-        "port"
-      ],
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
