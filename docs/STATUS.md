@@ -108,7 +108,7 @@ Bevy port yet. The game is called "paddles" because Pong is a trademark; see `NO
   official release and checked against the published SHA-512 before use. Breaking the GDScript port (spawn odds, win
   threshold) made 16 and 3 of 19 cases pass, so the check bites there too.
 - The repository has not been pushed anywhere. Cases are stored gzipped (`rea-games pack`).
-- The agent plugin manifest (`.claude-plugin`) was written from the documented format and has not been installed in
-  Claude Code. The Codex plugin format is not provided; `AGENTS.md` points Codex at the skill.
+- Agent plugin manifests: `.claude-plugin` (Claude), `.codex-plugin` (Codex), and `.agents/plugins/marketplace.json`
+  (agent-agnostic marketplace). Versions match `package.json` (1.1.0). They have not been installed end-to-end here.
 - `node games/dino/record.mjs --visual` reads unpacked `cases/*.json`; run `rea-games record dino` first (it also clears packed copies).
 - CI (`.github/workflows/verify.yml`) has never run.

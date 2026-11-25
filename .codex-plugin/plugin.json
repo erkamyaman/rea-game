@@ -1,0 +1,31 @@
+{
+  "name": "rea-games",
+  "version": "1.1.0",
+  "description": "Reverse-engineer a game's behavior, rebuild it in any engine, and prove the rebuild matches the original frame by frame.",
+  "author": {
+    "name": "rea-games contributors"
+  },
+  "homepage": "https://github.com/erkamyaman/rea-games#readme",
+  "repository": "https://github.com/erkamyaman/rea-games",
+  "license": "MIT",
+  "keywords": [
+    "games",
+    "reverse-engineering",
+    "clean-room",
+    "godot",
+    "unity",
+    "bevy",
+    "web",
+    "port"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "rea-games",
+    "shortDescription": "Rebuild a game from behavior and prove it matches frame by frame",
+    "longDescription": "Reverse-engineer a game's behavior, rebuild it in any engine (web, Godot, Bevy, Unity), and prove the rebuild matches the original frame by frame. Records inputs and state from the original, writes a behavior spec, builds the port, and verifies case by case.",
+    "category": "Coding",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#E2560F",
+    "logo": "./docs/assets/logo.svg"
+  }
+}

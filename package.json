@@ -36,6 +36,8 @@
     "originals/",
     "skills/",
     ".claude-plugin/",
+    ".agents/",
+    ".codex-plugin/",
     "NOTICE",
     "DECISIONS.md",
     "!games/*/ports/rust/target/",

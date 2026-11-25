@@ -91,6 +91,8 @@ claude plugin marketplace add erkamyaman/rea-games
 claude plugin install rea-games@rea-games
 ```
 
+The same plugin is listed in `.agents/plugins/marketplace.json` for agents that use that marketplace format (for example Codex: `codex plugin marketplace add erkamyaman/rea-games`, then `codex plugin add rea-games@rea-games`).
+
 Then: *"rea this game: <link to an open-source game>, rebuild it in Godot."* The skill (`skills/rea-games/SKILL.md`) runs the loop above. It records, writes the spec, builds the port, verifies, and reports what it could not cover.
 
 Or by hand:
