@@ -8,7 +8,7 @@
   :root { --bg:#14161c; --panel:#20242e; --cell:#1a1d26; --text:#e8eaf0; --muted:#8b93a7; --accent:#ff7a45; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--text);
-         font:16px/1.4 system-ui,sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+         font:16px/1.4 system-ui,sans-serif; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
   main { width:min(100% - 24px, 560px); padding:14px 0; }
   header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:12px; }
   h1 { margin:0; font-size:34px; letter-spacing:-1px; }
@@ -17,7 +17,7 @@
   .box { background:var(--panel); border-radius:10px; padding:6px 10px; text-align:center; }
   .box small { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
   .box b { font-size:20px; font-variant-numeric:tabular-nums; }
-  #court { position:relative; background:var(--panel); border-radius:12px; padding:8px; }
+  #court { position:relative; touch-action:none; background:var(--panel); border-radius:12px; padding:8px; }
   canvas { display:block; width:100%; height:auto; border-radius:6px; background:var(--cell); }
   #msg { position:absolute; inset:8px; border-radius:6px; background:rgba(20,22,28,.72); display:grid; place-content:center;
          text-align:center; gap:10px; cursor:pointer; padding:12px; }
@@ -170,7 +170,10 @@ import { Bricks, KEY, COLS } from "./bricks.mjs";
     draw();
     requestAnimationFrame(frame);
   }
-  document.addEventListener("visibilitychange", () => { last = null; });
+  // a key let go while the page is in the background never arrives: stop the paddle instead of leaving it running
+  const letGo = () => { game.keyUp(KEY.left); game.keyUp(KEY.right); };
+  document.addEventListener("visibilitychange", () => { last = null; if (document.hidden) letGo(); });
+  window.addEventListener("blur", letGo);
   requestAnimationFrame(frame);
 })();
 </script>

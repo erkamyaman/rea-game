@@ -145,12 +145,16 @@ export async function readLevels() {
 
 export async function openOriginal({ seed = 1, headless = true } = {}) {
   const browser = await launch(headless);
-  const { page, errors } = await load(browser, seed);
+  let page, errors, initial;
   const check = () => { if (errors.length) throw new Error("the original threw: " + errors.join(" | ")); };
-  check();
+  try {
+    ({ page, errors } = await load(browser, seed));
+    check();
+    initial = await page.evaluate(() => window.__bricks.state()); // the state the page's start-up leaves
+  } catch (e) { await browser.close(); throw e; }
   return {
     page,
-    initial: await page.evaluate(() => window.__bricks.state()), // the state the page's start-up leaves
+    initial,
     step: async (inp) => { const s = await page.evaluate((i) => { window.__bricks.step(i); return window.__bricks.state(); }, inp); check(); return s; },
     shot: (file) => page.screenshot({ path: file }),
     tape: () => page.evaluate(() => window.__bricks.tape()),
