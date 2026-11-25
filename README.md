@@ -48,6 +48,7 @@ Each is written from a behavior spec (`GAME.md`), draws its own art, and passes 
 | Dino | Chrome's offline dinosaur ([copy](https://github.com/wayou/t-rex-runner), BSD-3) | [play it](https://erkamyaman.github.io/rea-games/play/dino.html) | 29 cases, 63,000 frames: web, Godot and Rust (Bevy) ports |
 | Canvas Bird | [giotiskl/Canvas-Bird](https://github.com/giotiskl/Canvas-Bird), MIT | [play it](https://erkamyaman.github.io/rea-games/play/canvas-bird.html) | 30 cases, 68,409 frames: web, Godot and Rust (Bevy) ports |
 | Blocks (falling blocks) | [jakesgordon/javascript-tetris](https://github.com/jakesgordon/javascript-tetris), MIT | `docs/play/blocks.html` | 36 cases, 104,208 frames: web, Godot and Rust (Bevy) ports |
+| Bricks (brick breaking) | [jakesgordon/javascript-breakout](https://github.com/jakesgordon/javascript-breakout), MIT | `docs/play/bricks.html` | 37 cases, 209,600 steps: web port |
 
 ## How it works
 
@@ -76,6 +77,7 @@ dino / bevy         => 29/29 cases identical, 63000 inputs
 blocks / web        => 36/36 cases identical, 104208 inputs
 blocks / godot      => 36/36 cases identical, 104208 inputs
 blocks / bevy       => 36/36 cases identical, 104208 inputs
+bricks / web        => 37/37 cases identical, 209600 inputs
 ```
 
 A check that cannot fail proves nothing, so each port was also broken on purpose (a constant, a collision offset, a timing gate, a spawn-gap factor): `verify` failed each time, for example 5 of 30 Canvas Bird cases pass with the 30 fps gate changed, 3 of 19 for 2048 with the spawn odds changed from 0.9 to 0.8.

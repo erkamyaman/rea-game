@@ -19,5 +19,10 @@ case "differed". Compare parsed values (`lib/compare.mjs`), never `JSON.stringif
 Replace only the file name in the sums line, and look at a new workflow's log for the `verify` output, not just its
 colour.
 
+**A deliberate break crashed the port instead of failing the check.** Breaking Bricks three ways first showed
+`port exited 1` for every case, and one of the three edits had left a name undefined, so that failure proved nothing about
+`verify`. Read the reason for each failure: a broken port should fail with `trace differs at ...` or a tape count, not an
+error from the edit itself.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.

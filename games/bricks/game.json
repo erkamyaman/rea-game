@@ -1,0 +1,19 @@
+{
+  "name": "bricks",
+  "title": "Bricks",
+  "original": {
+    "repo": "jakesgordon/javascript-breakout",
+    "license": "MIT",
+    "path": "originals/bricks"
+  },
+  "record": "record.mjs",
+  "ports": {
+    "web": {
+      "cmd": [
+        "node",
+        "ports/web/run.mjs"
+      ],
+      "play": "ports/web/index.html"
+    }
+  }
+}
