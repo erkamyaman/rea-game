@@ -36,6 +36,10 @@ with `Object.hasOwn`; `test/compare.test.mjs` covers it.
 without cargo nothing after `2048 / bevy` was checked and there was no summary. A port that cannot run is that port's
 failure (`verifyGames` in `lib/verify.mjs`); the run goes on and ends with one line per port.
 
+**`new` promised a play page it never wrote.** `game.json` pointed `ports.web.play` at `ports/web/index.html`, but
+`scaffold` only made the folder, so `scripts/bundle.mjs` failed with ENOENT on a freshly scaffolded game. When a command
+writes a manifest, it writes every file that manifest names; `test/scaffold.test.mjs` now checks each path in `game.json`.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.
 
