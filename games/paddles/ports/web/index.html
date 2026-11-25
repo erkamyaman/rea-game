@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Paddles · rea-games</title>
+<style>
+  :root { --bg:#14161c; --panel:#20242e; --cell:#1a1d26; --text:#e8eaf0; --muted:#8b93a7; --accent:#ff7a45; --cool:#4fd1e8; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--text);
+         font:16px/1.4 system-ui,sans-serif; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+  main { width:min(100% - 24px, 700px); padding:14px 0; }
+  header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:12px; }
+  h1 { margin:0; font-size:34px; letter-spacing:-1px; }
+  header span { color:var(--muted); font-size:13px; text-align:right; }
+  #court { position:relative; background:var(--panel); border-radius:12px; padding:8px; touch-action:none; }
+  canvas { display:block; width:100%; height:auto; border-radius:6px; background:var(--cell); }
+  #msg { position:absolute; inset:8px; border-radius:6px; background:rgba(20,22,28,.72); display:grid; place-content:center;
+         text-align:center; gap:12px; padding:12px; }
+  #msg.off { display:none; }
+  #msg h2 { margin:0; font-size:26px; }
+  #msg p { margin:0; color:var(--muted); font-size:14px; }
+  #modes { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  #modes button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:10px 14px; font:inherit; font-weight:700; cursor:pointer; }
+  #modes button.alt { background:var(--panel); color:var(--text); }
+  p.keys { margin:12px 2px 0; color:var(--muted); font-size:14px; }
+  kbd { background:var(--panel); border-radius:5px; padding:1px 7px; font:inherit; font-weight:600; color:var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Paddles</h1><span>own art &middot; rules rebuilt from the recording</span></header>
+  <div id="court">
+    <canvas id="c" width="640" height="480" aria-label="Paddles game"></canvas>
+    <div id="msg">
+      <h2 id="msgtitle">Paddles</h2>
+      <p id="msgsub">First to 9 points wins.</p>
+      <div id="modes">
+        <button type="button" data-mode="1">1 player</button>
+        <button type="button" data-mode="2" class="alt">2 players</button>
+        <button type="button" data-mode="0" class="alt">Watch</button>
+      </div>
+    </div>
+  </div>
+  <p class="keys"><kbd>1</kbd> <kbd>2</kbd> <kbd>0</kbd> start with one player, two, or none &middot; left paddle <kbd>Q</kbd> <kbd>A</kbd> (or <kbd>&uarr;</kbd> <kbd>&darr;</kbd>) &middot; right paddle <kbd>P</kbd> <kbd>L</kbd> &middot; <kbd>Esc</kbd> give up. Hold a paddle on the left half of the court to move it by touch. A paddle moving as it meets the ball adds spin; the ball speeds up the longer a rally lasts.</p>
+</main>
+<script type="module">
+import { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS } from "./paddles.mjs";
+
+(function main() {
+  const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+  const DPR = Math.min(2, window.devicePixelRatio || 1); // drawn sharp on dense screens
+  cv.width = W * DPR; cv.height = H * DPR;
+  const $ = (id) => document.getElementById(id);
+  const game = new Paddles({ rng: Math.random, clock0: Math.floor(performance.now()) });
+
+  // ---- drawing: flat shapes, a dotted centre line, big soft score digits
+  function draw() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#2b303d";
+    ctx.fillRect(0, 0, W, WALL); ctx.fillRect(0, H - WALL, W, WALL);
+    for (let y = WALL + 10; y < H - WALL; y += 22) { ctx.beginPath(); ctx.arc(W / 2, y, 3, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = "rgba(232,234,240,.16)"; ctx.font = "800 96px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText(String(game.scores[0]), W / 2 - 80, 40); ctx.fillText(String(game.scores[1]), W / 2 + 80, 40);
+    const colors = ["#ff7a45", "#4fd1e8"];
+    game.paddles.forEach((p, i) => {
+      ctx.fillStyle = colors[i];
+      ctx.beginPath(); ctx.roundRect(p.left, p.y, PADDLE_W, PADDLE_H, 5); ctx.fill();
+    });
+    const b = game.ball;
+    if (game.playing && b.x !== null) {
+      ctx.fillStyle = "#e8eaf0";
+      ctx.beginPath(); ctx.arc(b.x, b.y, RADIUS, 0, Math.PI * 2); ctx.fill();
+    }
+    $("msg").classList.toggle("off", game.playing);
+    if (!game.playing && game.winner !== null) {
+      $("msgtitle").textContent = (game.winner === 0 ? "Left" : "Right") + " wins " + Math.max(...game.scores) + " to " + Math.min(...game.scores);
+    }
+  }
+
+  // ---- input: keys go straight to the rules, at the moment they happen
+  const CODES = { "0": KEY[0], "1": KEY[1], "2": KEY[2], Escape: KEY.esc, q: KEY.q, Q: KEY.q, a: KEY.a, A: KEY.a, p: KEY.p, P: KEY.p, l: KEY.l, L: KEY.l, ArrowUp: KEY.q, ArrowDown: KEY.a };
+  document.addEventListener("keydown", (e) => {
+    const k = CODES[e.key];
+    if (k === undefined) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    if (k === KEY.esc && game.playing) game.answer = window.confirm("Give up this game?");
+    game.keyDown(k);
+  });
+  document.addEventListener("keyup", (e) => { const k = CODES[e.key]; if (k !== undefined) { e.preventDefault(); game.keyUp(k); } });
+  for (const b of document.querySelectorAll("#modes button")) b.addEventListener("click", () => { const k = KEY[b.dataset.mode]; game.keyDown(k); game.keyUp(k); b.blur(); });
+  // touch: hold above or below the left paddle to move it
+  let held = null;
+  const release = () => { if (held !== null) { game.keyUp(held); held = null; } };
+  cv.addEventListener("pointerdown", (e) => {
+    const r = cv.getBoundingClientRect();
+    if ((e.clientX - r.left) / r.width > 0.5) return;
+    const y = ((e.clientY - r.top) / r.height) * H;
+    held = y < game.paddles[0].y + PADDLE_H / 2 ? KEY.q : KEY.a;
+    game.keyDown(held);
+  });
+  for (const ev of ["pointerup", "pointercancel", "pointerleave"]) cv.addEventListener(ev, release);
+  // a key let go while the page is in the background never arrives: let go of every paddle key
+  const letGo = () => { release(); for (const k of [KEY.q, KEY.a, KEY.p, KEY.l]) game.keyUp(k); };
+  window.addEventListener("blur", letGo);
+
+  // ---- clock: the rules keep their own timer; the screen only moves the clock on
+  let last = null;
+  function frame(ts) {
+    if (last !== null) game.step({ dt: Math.min(ts - last, 250) });
+    last = ts;
+    draw();
+    requestAnimationFrame(frame);
+  }
+  document.addEventListener("visibilitychange", () => { last = null; if (document.hidden) letGo(); });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

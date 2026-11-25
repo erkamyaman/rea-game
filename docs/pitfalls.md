@@ -24,5 +24,9 @@ colour.
 `verify`. Read the reason for each failure: a broken port should fail with `trace differs at ...` or a tape count, not an
 error from the edit itself.
 
+**A play page drew nothing after bundling.** `scripts/bundle.mjs` takes a module's exports from the first name on each
+`export const` line, so `export const W = 640, H = 480` exported `W` only, `H` was `undefined` in `docs/play/paddles.html`
+and the canvas had no height, with no error. Export one name per line, and open the bundled page, not only `ports/web`.
+
 **A check that cannot fail looks like a pass.** After a port is green, break it three ways (a constant, a branch, an
 offset) and watch `verify` fail each time; otherwise the cases may not reach the code you think they do.

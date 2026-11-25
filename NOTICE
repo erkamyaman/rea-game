@@ -14,6 +14,8 @@ They stay under their own licences, and each folder keeps its licence file:
                           Its sound/ folder holds SoundManager 2, (c) 2007 Scott Schiller, BSD (sound/license.txt),
                           and six sound effects from The Freesound Project under CC BY-ND 2.0; their authors are
                           credited in originals/bricks/LICENSE. The rebuild plays no sound.
+  originals/paddles       javascript-pong, (c) 2011-2016 Jake Gordon
+                          and contributors, MIT                       https://github.com/jakesgordon/javascript-pong
 
 The rebuilds in games/*/ports are written from the behavior specs in games/*/GAME.md. They use none of the originals'
 code, art or sound. The names 2048 and "Dino" describe the games being studied; this project is not affiliated with
@@ -21,6 +23,7 @@ their authors or with Google. The falling-blocks game is called "blocks" here: T
 trademark of its owner, this project is not affiliated with it, and the rebuild uses no Tetris name or art.
 The brick-breaking game is called "bricks" here for the same reason: Breakout is a trademark of its owner. Its rebuild
 draws its own art and ships its own levels; the recordings carry the original's brick layouts as measurements.
+The two-paddle ball game is called "paddles" for the same reason: Pong is a trademark of its owner.
 
 The recordings (games/*/cases) are measurements of how the originals behave: input lists, random numbers and
 resulting game states.

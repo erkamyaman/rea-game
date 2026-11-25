@@ -1,0 +1,19 @@
+{
+  "name": "paddles",
+  "title": "Paddles",
+  "original": {
+    "repo": "jakesgordon/javascript-pong",
+    "license": "MIT",
+    "path": "originals/paddles"
+  },
+  "record": "record.mjs",
+  "ports": {
+    "web": {
+      "cmd": [
+        "node",
+        "ports/web/run.mjs"
+      ],
+      "play": "ports/web/index.html"
+    }
+  }
+}
