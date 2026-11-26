@@ -59,6 +59,9 @@ test("an export the bundler cannot hand back stops the bundle with the module an
   }
   const commented = bundleModule("export const A = 1; // the bundler reads each export; export one name or many\nexport const D = 2;\n")();
   assert.match(commented, /^return \{ A, D \};$/m);
+  // Nor inside a string literal.
+  const quoted = bundleModule('export const A = "; export default 1";\nexport const D = `x; export { y }`;\n')();
+  assert.match(quoted, /^return \{ A, D \};$/m);
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
 });

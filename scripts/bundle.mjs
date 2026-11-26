@@ -17,6 +17,16 @@ const LEFTOVER_IMPORT = /^[ \t]*import(?=[\s{*"'])[^\n]*/m;
 // An export after a `;` on the same line (`const A = 1; export { A };`) is never stripped either; the
 // part before that `;` must hold no `//`, so the word in a line comment does not count.
 const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export\b[^\n]*/m;
+// String literals are blanked (same length, quotes kept) before that check, so `"; export"` in a string is not code.
+const STRING = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`/g;
+function leftoverExport(body) {
+  const blank = body.replace(STRING, (m) => m[0] + m.slice(1, -1).replace(/[^\n]/g, " ") + m.at(-1));
+  const at = blank.match(LEFTOVER_EXPORT)?.index;
+  if (at === undefined) return undefined;
+  const start = body.lastIndexOf("\n", at) + 1;
+  const end = body.indexOf("\n", at);
+  return body.slice(start, end === -1 ? undefined : end);
+}
 // Each module runs in its own function scope and hands back its named exports, so two files may
 // both declare the same top-level name (the page and its logic module often both define W and H).
 function inline(dir, file, out) {
@@ -27,7 +37,7 @@ function inline(dir, file, out) {
   const src = fs.readFileSync(full, "utf8");
   const names = exportedNames(src);
   const body = imports(src, path.dirname(full), out).replace(EXPORT_LIST, "").replace(EXPORT_DECL, "");
-  const left = body.match(LEFTOVER_EXPORT)?.[0];
+  const left = leftoverExport(body);
   if (left) throw new Error(`${path.relative(root, full)}: export not supported by the bundler: ${left.trim()}`);
   out.push(`const ${id} = (() => {\n${body}\nreturn { ${names.join(", ")} };\n})();\n`);
   return id;
