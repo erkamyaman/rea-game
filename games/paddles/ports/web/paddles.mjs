@@ -6,7 +6,6 @@
 
 export const T0 = 1000000; // the recording's clock starts here (ms)
 export const KEY = { 0: 48, 1: 49, 2: 50, esc: 27, q: 81, a: 65, p: 80, l: 76 };
-// one name per export: scripts/bundle.mjs reads only the first name of an `export const a = 1, b = 2` line
 export const W = 640;
 export const H = 480;
 export const WALL = 12;

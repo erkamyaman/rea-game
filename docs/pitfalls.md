@@ -26,7 +26,8 @@ error from the edit itself.
 
 **A play page drew nothing after bundling.** `scripts/bundle.mjs` takes a module's exports from the first name on each
 `export const` line, so `export const W = 640, H = 480` exported `W` only, `H` was `undefined` in `docs/play/paddles.html`
-and the canvas had no height, with no error. Export one name per line, and open the bundled page, not only `ports/web`.
+and the canvas had no height, with no error. The bundler now keeps every name of a multi-name export (see the
+multi-name entry below); open the bundled page, not only `ports/web`.
 
 **`in` found keys the port never printed.** `firstDiff` checked `k in a`, which is true for inherited names, so a port
 that printed a `constructor` key was reported as `.constructor: undefined != 1` instead of a missing key. Check own keys
