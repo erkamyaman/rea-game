@@ -46,3 +46,17 @@ test("comments inside an export list are not part of a name", () => {
   assert.deepEqual(exportedNames("const B = 2;\nexport { B/* note */as D };\n"), ["D: B"]);
   assert.deepEqual(exportedNames("const A = 1, B = 2;\nexport {\n  A // first\n  , B\n};\n"), ["A", "B"]);
 });
+
+test("a value continued on a line that starts with an operator keeps the names after it (#80)", () => {
+  assert.deepEqual(exportedNames("export const A = 1\n  + 10, B = 2;\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = obj\n  .field, B = 2\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = ok\n  ? 1\n  : 2, B = 3\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = 1\n\n  , B = 2\n"), ["A", "B"]);
+});
+
+test("a next line that is a comment or starts with ++ / -- still ends the declaration", () => {
+  assert.deepEqual(exportedNames("export const A = 1\n// the next one\nexport const C = 3;\n"), ["A", "C"]);
+  assert.deepEqual(exportedNames("export const A = 1\n/* the next one */\nexport const C = 3;\n"), ["A", "C"]);
+  assert.deepEqual(exportedNames("export let A = 1\n++count\nexport let D = 4\n"), ["A", "D"]);
+  assert.deepEqual(exportedNames("export let A = 1\n--count\nexport let D = 4\n"), ["A", "D"]);
+});

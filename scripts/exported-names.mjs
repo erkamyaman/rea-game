@@ -11,6 +11,10 @@ const DECL = /^export\s+(?:async\s+)?(?:function\*?|class)\s+([A-Za-z_$][\w$]*)/
 const VARS = /^export\s+(?:const|let|var)\s+/gm;
 const NAME = /^[A-Za-z_$][\w$]*/;
 const CONTINUES = /[,=+\-*/%?:|&!<>(\[{.]$/;
+// A value also goes on when the next line starts with a binary operator, `.`, `,`, `?` or `:`
+// (`export const A = 1\n  + 10, B = 2`). A comment (`//`, `/*`) or `++` / `--` there starts
+// something new, so the declaration ends.
+const CONTINUES_NEXT = /^(?!\/\/|\/\*|\+\+|--)[-+*/%=<>&|^?:.,]/;
 
 export function exportedNames(src) {
   const found = [];
@@ -55,7 +59,7 @@ function bindings(src, i) {
     else if (")]}".includes(c)) depth--;
     else if (depth === 0 && c === ",") { expectName = true; i++; continue; }
     else if (depth === 0 && c === ";") break;
-    else if (depth === 0 && c === "\n" && !CONTINUES.test(last)) break;
+    else if (depth === 0 && c === "\n" && !CONTINUES.test(last) && !CONTINUES_NEXT.test(src.slice(i + 1).trimStart())) break;
     if (!/\s/.test(c)) last = c;
     i++;
   }
