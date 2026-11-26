@@ -14,7 +14,8 @@ port, verify, fix, repeat. Never call a port done until `rea-games verify` says 
    its art, music, names, or code is not, unless the licence allows it. Open source or permissive originals are
    the ones to start with (see `games/*/game.json` for the three that ship). If the licence is unclear, say so and
    ask before going on. Never use a trademarked name for the rebuild.
-2. Check the tools: `node -v` (22+), and for a browser game `require('playwright')` and a Chromium.
+2. Check the tools: `node -v` (22+), and for a browser game Playwright and a Chromium (`PLAYWRIGHT_PATH`
+   points at an install outside the repository; drivers load it with `loadPlaywright()` from `lib/playwright.mjs`).
 
 ## The loop
 

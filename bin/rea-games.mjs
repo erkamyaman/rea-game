@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { listGames, loadGame, verifyGames, summaryLines, packCases } from "../lib/verify.mjs";
+import { listGames, loadGame, verifyGames, summaryLines, packCases, packLine } from "../lib/verify.mjs";
 import { scaffold } from "../lib/scaffold.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -43,8 +43,7 @@ async function main() {
   }
   if (cmd === "pack") {
     for (const g of rest[0] === "all" || !rest[0] ? listGames(root) : [rest[0]]) {
-      const r = packCases(root, g);
-      console.log(`${g}: ${(r.before / 1e6).toFixed(1)} MB -> ${(r.after / 1e6).toFixed(1)} MB`);
+      console.log(packLine(g, packCases(root, g)));
     }
     return;
   }

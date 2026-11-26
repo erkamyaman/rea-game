@@ -4,21 +4,14 @@
 // every value goes to a tape, and window.confirm (the "Abandon game?" question), which answers what the
 // case says. The page's sound library (sound/soundmanager2-*.js) keeps the real timers: it never touches
 // the game's state, and its polling would only slow the fake clock down.
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadPlaywright } from "../../lib/playwright.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const ORIGINAL = path.join(here, "../../originals/bricks/index.html");
 export const T0 = 1000000; // the fake clock's start, in ms (the port uses the same)
 export const KEYCODES = { left: 37, right: 39, a: 65, d: 68, space: 32, enter: 13, esc: 27, up: 38, down: 40 };
-
-function loadPlaywright() {
-  const require = createRequire(import.meta.url);
-  const tries = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node22/lib/node_modules/playwright", "/opt/node-tools/node_modules/playwright"].filter(Boolean);
-  for (const t of tries) { try { return require(t); } catch {} }
-  throw new Error("playwright not found; set PLAYWRIGHT_PATH");
-}
 
 // runs in the page before any of its scripts
 function install({ seed, T0, KEYCODES }) {

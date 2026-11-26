@@ -17,6 +17,8 @@ A port is any program that reads a case on stdin and prints `{trace, tapeUsed}` 
 
 ## Rules
 
+- Recording a browser game needs Playwright with Chromium. If it is installed outside the repository, set
+  `PLAYWRIGHT_PATH` to that install's `playwright` folder; drivers load it through `lib/playwright.mjs`.
 - `npm test` runs the unit tests in `test/` (Node only, a few seconds); run it after changing anything in `lib/`.
   `npm run verify` replays every case through every port.
 - Never edit a recording by hand, and never loosen a comparison to get green.

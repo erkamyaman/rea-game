@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { loadCases, packCases } from "../lib/verify.mjs";
+import { formatSize, loadCases, packCases, packLine } from "../lib/verify.mjs";
 
 // Every shipped game has packed cases, so both sides of pack/load need a test of their own.
 function caseText(n) {
@@ -35,7 +35,9 @@ test("packCases leaves only .json.gz, reports fewer bytes, and loadCases returns
     assert.deepEqual(expected.map((c) => c.file), ["a.json", "b.json"]);
     assert.deepEqual(expected.map((c) => c.raw), [a, b]);
 
-    const { before, after } = packCases(root, "packed");
+    const { packed, alreadyPacked, before, after } = packCases(root, "packed");
+    assert.equal(packed, 2);
+    assert.equal(alreadyPacked, 0);
     assert.equal(before, Buffer.byteLength(a) + Buffer.byteLength(b));
     assert.ok(before > after, `before ${before} should be larger than after ${after}`);
 
@@ -64,4 +66,36 @@ test("loadCases reads one packed case and one plain case", () => {
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("packCases on packed cases packs nothing and reports how many were already packed", () => {
+  const root = tempRoot();
+  try {
+    const dir = makeGame(root, "done", { "a.json": caseText(100), "b.json": caseText(120) });
+    packCases(root, "done");
+    const cd = path.join(dir, "cases");
+    const gzBefore = fs.readdirSync(cd).sort().map((f) => fs.readFileSync(path.join(cd, f)));
+
+    const r = packCases(root, "done");
+    assert.deepEqual(r, { packed: 0, alreadyPacked: 2, before: 0, after: 0 });
+    assert.equal(packLine("done", r), "done: already packed (2 cases)");
+    assert.deepEqual(fs.readdirSync(cd).sort().map((f) => fs.readFileSync(path.join(cd, f))), gzBefore); // untouched
+
+    fs.writeFileSync(path.join(cd, "c.json"), caseText(90)); // one new plain case among the packed ones
+    const r2 = packCases(root, "done");
+    assert.equal(r2.packed, 1);
+    assert.equal(r2.alreadyPacked, 2);
+    assert.match(packLine("done", r2), /^done: [\d.]+ KB -> [\d.]+ KB \(1 case packed, 2 already packed\)$/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("formatSize shows KB below 0.1 MB and MB from there up", () => {
+  assert.equal(formatSize(0), "0.0 KB");
+  assert.equal(formatSize(4321), "4.3 KB");
+  assert.equal(formatSize(99_949), "99.9 KB");
+  assert.equal(formatSize(100_000), "0.1 MB");
+  assert.equal(formatSize(2_345_678), "2.3 MB");
+  assert.equal(packLine("empty", { packed: 0, alreadyPacked: 0, before: 0, after: 0 }), "empty: no cases to pack");
 });

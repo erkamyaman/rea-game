@@ -3,21 +3,14 @@
 // performance.now, requestAnimationFrame, cancelAnimationFrame) and a seeded Math.random whose every value
 // goes to a tape. The page's own stats widget (stats.js) and CSS texture are left alone: they only draw
 // into their own elements and never touch the game's variables.
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadPlaywright } from "../../lib/playwright.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const ORIGINAL = path.join(here, "../../originals/blocks/index.html");
 export const T0 = 1000000; // the fake clock's start, in ms (the port uses the same)
 export const KEYCODES = { esc: 27, space: 32, left: 37, up: 38, right: 39, down: 40 };
-
-function loadPlaywright() {
-  const require = createRequire(import.meta.url);
-  const tries = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node22/lib/node_modules/playwright", "/opt/node-tools/node_modules/playwright"].filter(Boolean);
-  for (const t of tries) { try { return require(t); } catch {} }
-  throw new Error("playwright not found; set PLAYWRIGHT_PATH");
-}
 
 // runs in the page before any of its scripts
 function install({ seed, T0, KEYCODES }) {

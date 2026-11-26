@@ -7,20 +7,13 @@
 //   s:name:sx:sy:sw:sh:dx:dy:dw:dh drawImage with a source rectangle
 //   t:fill|stroke:text:x:y:style   fillText / strokeText with the raw style string last assigned
 //   a:point|lose                   Audio.play() was called
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadPlaywright } from "../../lib/playwright.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const ORIGINAL = path.join(here, "../../originals/canvas-bird/index.html");
 export const T0 = 1000000; // the fake clock's start, in ms (the port uses the same)
-
-function loadPlaywright() {
-  const require = createRequire(import.meta.url);
-  const tries = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node22/lib/node_modules/playwright", "/opt/node-tools/node_modules/playwright"].filter(Boolean);
-  for (const t of tries) { try { return require(t); } catch {} }
-  throw new Error("playwright not found; set PLAYWRIGHT_PATH");
-}
 
 // runs in the page before any of its scripts
 function install({ seed, T0 }) {

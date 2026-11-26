@@ -3,11 +3,10 @@
 // and cancelAnimationFrame are replaced, the CSS intro animation is switched off and its end
 // event is dispatched by the driver, AudioContext is a stub, and Math.random is split in two
 // seeded streams (gameplay = recorded on `tape`, visual = not recorded).
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadPlaywright } from "../../lib/playwright.mjs";
 
-const require = createRequire(import.meta.url);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pageUrl = pathToFileURL(path.join(here, "../../originals/dino/index.html")).href;
 
@@ -137,7 +136,7 @@ function installFakes({ gameSeed, visualSeed, clock0, introMs }) {
 }
 
 export async function openOriginal({ seed, visualSeed } = {}) {
-  const { chromium } = require("playwright");
+  const { chromium } = loadPlaywright();
   const gameSeed = seed ?? 1;
   const vSeed = visualSeed ?? ((gameSeed * 7919 + 13) >>> 0);
   const browser = await chromium.launch();

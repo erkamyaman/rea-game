@@ -53,6 +53,11 @@ never drew its settled cells or grid lines. `verify` stayed green because it rep
 `scripts/exported-names.mjs` keeps every binding (commas count only at depth zero) and `npm test`
 checks it; after regenerating `docs/play/`, open the changed pages and look at them.
 
+**One driver ignored PLAYWRIGHT_PATH.** Four drivers each had a copy of the Playwright lookup, and Dino called
+`require("playwright")` itself, so with Playwright installed outside the repository `record dino` failed with Node's
+"Cannot find module" while the others worked. Every driver loads it with `loadPlaywright()` from `lib/playwright.mjs`,
+and `test/playwright.test.mjs` checks each `games/*/driver.mjs` for it.
+
 **A crashed port showed only the Node.js version line.** `verify` reported the last two lines of a crashed port's stderr,
 and Node ends an uncaught error with its stack, a blank line and `Node.js vNN`, so the error never showed up. Dropping the
 blank and version lines is not enough, because the last two lines are then stack frames. Taking the first stack is not
