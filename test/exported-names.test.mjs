@@ -54,6 +54,10 @@ test("a value continued on a line that starts with an operator keeps the names a
   assert.deepEqual(exportedNames("export const A = 1\n\n  , B = 2\n"), ["A", "B"]);
   assert.deepEqual(exportedNames("export const W = 640\n  // border\n  + 10, H = 480;\n"), ["W", "H"]);
   assert.deepEqual(exportedNames("export const W = 640\n  /* border */\n  + 10, H = 480;\n"), ["W", "H"]);
+  assert.deepEqual(exportedNames("export const A = 1\n  !== 2, B = 3;\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = x\n  instanceof Y, B = 3;\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = \"k\"\n  in o, B = 3;\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export let A\n  = 5, B = 3;\n"), ["A", "B"]);
 });
 
 test("a next line that is a comment or starts with ++ / -- still ends the declaration", () => {
@@ -61,4 +65,6 @@ test("a next line that is a comment or starts with ++ / -- still ends the declar
   assert.deepEqual(exportedNames("export const A = 1\n/* the next one */\nexport const C = 3;\n"), ["A", "C"]);
   assert.deepEqual(exportedNames("export let A = 1\n++count\nexport let D = 4\n"), ["A", "D"]);
   assert.deepEqual(exportedNames("export let A = 1\n--count\nexport let D = 4\n"), ["A", "D"]);
+  assert.deepEqual(exportedNames("export const A = 1\nindex();\nexport const C = 3;\n"), ["A", "C"]);
+  assert.deepEqual(exportedNames("export let A\n/foo,bar/.test(\"foo,bar\");\n"), ["A"]);
 });

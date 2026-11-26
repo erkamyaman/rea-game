@@ -11,10 +11,12 @@ const DECL = /^export\s+(?:async\s+)?(?:function\*?|class)\s+([A-Za-z_$][\w$]*)/
 const VARS = /^export\s+(?:const|let|var)\s+/gm;
 const NAME = /^[A-Za-z_$][\w$]*/;
 const CONTINUES = /[,=+\-*/%?:|&!<>(\[{.]$/;
-// A value also goes on when the next line starts with a binary operator, `.`, `,`, `?` or `:`
-// (`export const A = 1\n  + 10, B = 2`). Blank and comment lines before it are skipped, as JavaScript does.
-// `++` / `--` there starts something new, so the declaration ends.
-const CONTINUES_NEXT = /^(?!\+\+|--)[-+*/%=<>&|^?:.,]/;
+// A value also goes on when the next line starts with a binary operator (`!=`, `in` and `instanceof` included),
+// `.`, `,`, `?` or `:` (`export const A = 1\n  + 10, B = 2`). Blank and comment lines before it are skipped, as
+// JavaScript does. `++` / `--` there starts something new, so the declaration ends. A name with no `=` yet only
+// goes on with `=` or `,`: `export let A\n/re/.test(s)` is two statements.
+const CONTINUES_NEXT = /^(?:(?!\+\+|--)[-+*/%=<>&|^?:.,]|!=|in(?:stanceof)?(?![\w$]))/;
+const CONTINUES_NAME = /^(?:=(?![=>])|,)/;
 const SKIP = /^(?:\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*/;
 
 export function exportedNames(src) {
@@ -37,6 +39,7 @@ function bindings(src, i) {
   let expectName = true;
   let depth = 0;
   let last = "";
+  let value = false;
   while (i < src.length) {
     if (expectName) {
       while (/\s/.test(src[i])) i++;
@@ -46,6 +49,7 @@ function bindings(src, i) {
       i += name[0].length;
       last = name[0].at(-1);
       expectName = false;
+      value = false;
       continue;
     }
     const c = src[i];
@@ -60,7 +64,8 @@ function bindings(src, i) {
     else if (")]}".includes(c)) depth--;
     else if (depth === 0 && c === ",") { expectName = true; i++; continue; }
     else if (depth === 0 && c === ";") break;
-    else if (depth === 0 && c === "\n" && !CONTINUES.test(last) && !CONTINUES_NEXT.test(src.slice(i + 1).replace(SKIP, ""))) break;
+    else if (depth === 0 && c === "=") value = true;
+    else if (depth === 0 && c === "\n" && !CONTINUES.test(last) && !(value ? CONTINUES_NEXT : CONTINUES_NAME).test(src.slice(i + 1).replace(SKIP, ""))) break;
     if (!/\s/.test(c)) last = c;
     i++;
   }
