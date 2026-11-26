@@ -27,4 +27,7 @@ test("an import indented with spaces or tabs is inlined too", () => {
 test("an import the bundler cannot inline is reported", () => {
   const out = bundleHtml(`<script type="module">\n  import confetti from "https://cdn.example/confetti.mjs";\n</script>\n`, page);
   assert.match(leftoverImport(out), /import confetti from/);
+  assert.match(leftoverImport(`<script>\n  import "./side-effect.mjs";\n</script>\n`), /import "\.\/side-effect\.mjs"/);
+  assert.match(leftoverImport(`<script>\nimport {\n  A,\n  B\n} from "https://cdn.example/x.mjs";\n</script>\n`), /^import \{$/);
+  assert.equal(leftoverImport(`<script>\nimport("./later.mjs").then(start);\n</script>\n`), undefined);
 });

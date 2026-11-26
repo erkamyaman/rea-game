@@ -11,7 +11,7 @@ const modules = new Map();
 // Leading spaces or tabs are allowed: a page often indents the code inside its <script>.
 const IMPORT = /^([ \t]*)import\s*\{([^}]*)\}\s*from\s*["'](\.\/[^"']+)["'];?\s*$/gm;
 // Any import left after inlining would make the plain <script> fail to parse in the browser.
-const LEFTOVER_IMPORT = /^[ \t]*import\b[^\n]*\bfrom\b/m;
+const LEFTOVER_IMPORT = /^[ \t]*import(?=[\s{*"'])[^\n]*/m;
 // Each module runs in its own function scope and hands back its named exports, so two files may
 // both declare the same top-level name (the page and its logic module often both define W and H).
 function inline(dir, file, out) {
