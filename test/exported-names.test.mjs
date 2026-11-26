@@ -19,6 +19,13 @@ test("commas inside calls, literals, strings and comments do not start a new bin
   assert.deepEqual(exportedNames("export const M = {\n  a: 1,\n  b: [2, 3],\n};\n"), ["M"]);
 });
 
+test("regex literals do not split or hide exported bindings", () => {
+  assert.deepEqual(exportedNames("export const Q = /[\\x22\\x27]/, B = 2;\n"), ["Q", "B"]);
+  assert.deepEqual(exportedNames("export const SEP = /,/, B = 2;\n"), ["SEP", "B"]);
+  assert.deepEqual(exportedNames('export const A = "^" + /foo,bar/.source, B = 2;\n'), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const H = W / 2, D = 3;\n"), ["H", "D"]);
+});
+
 test("functions and classes are listed in source order", () => {
   assert.deepEqual(
     exportedNames("export const K = 1;\nexport function f(a, b) {}\nexport async function g() {}\nexport class C {}\n"),

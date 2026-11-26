@@ -1,7 +1,7 @@
 // Names a module exports with `export const|let|var|function|class` or a local `export { a, b as c }` list,
 // for scripts/bundle.mjs. A renamed export is given as `c: b`, ready for the bundler's `return { … }`.
 // A declaration may bind several names (`export const W = 10, H = 20;`): every binding is kept.
-// A comma only separates bindings at depth zero, not inside a string, a comment, (), [] or {}.
+// A comma only separates bindings at depth zero, not inside a string, regex, comment, (), [] or {}.
 // Any other export (`export default`, `export *`, `export { … } from`) is left for the bundler to refuse.
 // A local export list, possibly over several lines; a list followed by `from` re-exports and is not matched.
 export const EXPORT_LIST = /^export\s*\{([^}]*)\}(?!\s*from\b)[ \t]*;?[ \t]*$/gm;
@@ -55,6 +55,20 @@ function bindings(src, i) {
     const c = src[i];
     if (c === "/" && src[i + 1] === "/") { while (i < src.length && src[i] !== "\n") i++; continue; }
     if (c === "/" && src[i + 1] === "*") { const end = src.indexOf("*/", i + 2); i = end < 0 ? src.length : end + 2; continue; }
+    if (c === "/" && value && /[=(:,?+\-*%&|!~^<>\[]/.test(last)) {
+      i++;
+      let inClass = false;
+      while (i < src.length) {
+        if (src[i] === "\\") { i += 2; continue; }
+        if (src[i] === "[") inClass = true;
+        else if (src[i] === "]") inClass = false;
+        else if (src[i] === "/" && !inClass) { i++; break; }
+        i++;
+      }
+      while (/[A-Za-z]/.test(src[i] ?? "")) i++;
+      last = "x";
+      continue;
+    }
     if (c === '"' || c === "'" || c === "`") {
       i++;
       while (i < src.length && src[i] !== c) i += src[i] === "\\" ? 2 : 1;
