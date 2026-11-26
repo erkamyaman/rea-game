@@ -52,6 +52,8 @@ test("a value continued on a line that starts with an operator keeps the names a
   assert.deepEqual(exportedNames("export const A = obj\n  .field, B = 2\n"), ["A", "B"]);
   assert.deepEqual(exportedNames("export const A = ok\n  ? 1\n  : 2, B = 3\n"), ["A", "B"]);
   assert.deepEqual(exportedNames("export const A = 1\n\n  , B = 2\n"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const W = 640\n  // border\n  + 10, H = 480;\n"), ["W", "H"]);
+  assert.deepEqual(exportedNames("export const W = 640\n  /* border */\n  + 10, H = 480;\n"), ["W", "H"]);
 });
 
 test("a next line that is a comment or starts with ++ / -- still ends the declaration", () => {
