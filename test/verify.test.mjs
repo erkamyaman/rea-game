@@ -101,3 +101,10 @@ test("crashReason takes the last message, not an error logged before it", () => 
   const props = "Error: ENOENT: no such file or directory, open 'x'\n    at Object.openSync (node:fs:553:18)\n    at main (runner.mjs:1:4) {\n  errno: -2,\n  code: 'ENOENT'\n}\n\nNode.js v22.23.5\n";
   assert.equal(crashReason(props), "Error: ENOENT: no such file or directory, open 'x' | at Object.openSync (node:fs:553:18)");
 });
+
+test("crashReason keeps an error whose message goes on in indented lines before its stack", () => {
+  const detail = "Error: boom\n  detail\n    at main (runner.mjs:1:1)\n    at start (runner.mjs:2:1)\n";
+  assert.equal(crashReason(detail), "Error: boom | at main (runner.mjs:1:1)");
+  const diff = "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   a: 1\n-   a: 2\n  }\n\n    at main (runner.mjs:1:1)\n    at start (runner.mjs:2:1) {\n  code: 'ERR_ASSERTION',\n  operator: 'deepStrictEqual'\n}\n\nNode.js v22.23.5\n";
+  assert.equal(crashReason(diff), "-   a: 2 | at main (runner.mjs:1:1)");
+});
