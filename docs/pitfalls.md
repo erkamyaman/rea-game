@@ -24,7 +24,7 @@ colour.
 `verify`. Read the reason for each failure: a broken port should fail with `trace differs at ...` or a tape count, not an
 error from the edit itself.
 
-**A play page drew nothing after bundling.** `scripts/bundle.mjs` takes a module's exports from the first name on each
+**A play page drew nothing after bundling.** `scripts/bundle.mjs` took a module's exports from the first name on each
 `export const` line, so `export const W = 640, H = 480` exported `W` only, `H` was `undefined` in `docs/play/paddles.html`
 and the canvas had no height, with no error. The bundler now keeps every name of a multi-name export (see the
 multi-name entry below); open the bundled page, not only `ports/web`.
