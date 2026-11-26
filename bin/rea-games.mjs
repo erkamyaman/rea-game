@@ -32,6 +32,7 @@ async function main() {
     console.log("created", scaffold(root, rest[0] ?? ""));
     return;
   }
+  const size = (n) => (n < 1e5 ? `${Math.round(n / 1000)} KB` : `${(n / 1e6).toFixed(1)} MB`); // below 0.1 MB the MB figure is all zeros
   if (cmd === "record") {
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
@@ -44,7 +45,7 @@ async function main() {
   if (cmd === "pack") {
     for (const g of rest[0] === "all" || !rest[0] ? listGames(root) : [rest[0]]) {
       const r = packCases(root, g);
-      console.log(`${g}: ${(r.before / 1e6).toFixed(1)} MB -> ${(r.after / 1e6).toFixed(1)} MB`);
+      console.log(`${g}: ${r.packed ? `${size(r.before)} -> ${size(r.after)}` : `already packed (${r.already} cases)`}`);
     }
     return;
   }

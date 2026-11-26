@@ -47,6 +47,18 @@ test("packCases leaves only .json.gz, reports fewer bytes, and loadCases returns
   }
 });
 
+test("a second pack finds nothing left and says so", () => {
+  const root = tempRoot();
+  try {
+    makeGame(root, "twice", { "a.json": caseText(50), "b.json": caseText(60) });
+    assert.equal(packCases(root, "twice").packed, 2);
+    const again = packCases(root, "twice");
+    assert.deepEqual([again.packed, again.already], [0, 2]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("loadCases reads one packed case and one plain case", () => {
   const root = tempRoot();
   try {
