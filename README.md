@@ -105,7 +105,7 @@ node bin/rea-games.mjs verify my-game --port web
 node bin/rea-games.mjs pack all           # gzip the cases for git
 ```
 
-Needs Node 22. Browser games also need Playwright with Chromium; the Rust ports need `cargo`, the Godot one a Godot 4.4 binary (`REA_GODOT=/path/to/godot`).
+Needs Node 22. Browser games also need Playwright with Chromium (`PLAYWRIGHT_PATH` points at an install outside the repository); the Rust ports need `cargo`, the Godot one a Godot 4.4 binary (`REA_GODOT=/path/to/godot`).
 
 ## Engines
 
