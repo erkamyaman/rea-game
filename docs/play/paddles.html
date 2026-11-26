@@ -336,6 +336,7 @@ const { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS, WIN } = __mod0;
   const $ = (id) => document.getElementById(id);
   const set = (id, v) => { const el = $(id), s = String(v); if (el.textContent !== s) el.textContent = s; };
   const game = new Paddles({ rng: Math.random, clock0: Math.floor(performance.now()) });
+  let gaveUp = false; // the last game was given up with Esc
 
   // ---- drawing: flat shapes, a dotted centre line, big soft score digits
   function draw() {
@@ -361,8 +362,9 @@ const { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS, WIN } = __mod0;
     const won = !game.playing && game.winner !== null && Math.max(...game.scores) >= WIN
       ? (game.winner === 0 ? "Left" : "Right") + " wins " + Math.max(...game.scores) + " to " + Math.min(...game.scores)
       : null;
-    if (!game.playing) set("msgtitle", won ?? "Paddles");
-    set("live", won ?? "Left " + game.scores[0] + ", Right " + game.scores[1]);
+    if (game.playing) gaveUp = false;
+    if (!game.playing) set("msgtitle", won ?? (gaveUp ? "Game ended" : "Paddles"));
+    set("live", won ?? (gaveUp ? "Game ended, " : "") + "Left " + game.scores[0] + ", Right " + game.scores[1]);
   }
 
   // ---- input: keys go straight to the rules, at the moment they happen
@@ -372,8 +374,10 @@ const { Paddles, KEY, W, H, WALL, PADDLE_W, PADDLE_H, RADIUS, WIN } = __mod0;
     if (k === undefined) return;
     e.preventDefault();
     if (e.repeat) return;
-    if (k === KEY.esc && game.playing) game.answer = window.confirm("Give up this game?");
+    const was = game.playing;
+    if (k === KEY.esc && was) game.answer = window.confirm("Give up this game?");
     game.keyDown(k);
+    if (k === KEY.esc && was && !game.playing) gaveUp = true;
   });
   document.addEventListener("keyup", (e) => { const k = CODES[e.key]; if (k !== undefined) { e.preventDefault(); game.keyUp(k); } });
   for (const b of document.querySelectorAll("#modes button")) b.addEventListener("click", () => { const k = KEY[b.dataset.mode]; game.keyDown(k); game.keyUp(k); b.blur(); });
