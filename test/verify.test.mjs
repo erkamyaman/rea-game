@@ -92,3 +92,12 @@ test("crashReason drops blank lines and the Node.js version line, and keeps a pa
   assert.equal(crashReason(panic), "boom | note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace");
   assert.equal(crashReason(""), "");
 });
+
+test("crashReason takes the last message, not an error logged before it", () => {
+  const recovered = "Error: recovered\n    at retry (runner.mjs:1:1)\nfatal: boom\n";
+  assert.equal(crashReason(recovered), "at retry (runner.mjs:1:1) | fatal: boom");
+  const logged = "Error: warning first\n    at warn (runner.mjs:1:1)\nrunner.mjs:2\nthrow new Error('boom')\n^\n\nError: boom\n    at runner.mjs:2:7\n\nNode.js v22.23.5\n";
+  assert.equal(crashReason(logged), "Error: boom | at runner.mjs:2:7");
+  const props = "Error: ENOENT: no such file or directory, open 'x'\n    at Object.openSync (node:fs:553:18)\n    at main (runner.mjs:1:4) {\n  errno: -2,\n  code: 'ENOENT'\n}\n\nNode.js v22.23.5\n";
+  assert.equal(crashReason(props), "Error: ENOENT: no such file or directory, open 'x' | at Object.openSync (node:fs:553:18)");
+});
