@@ -14,7 +14,9 @@ const IMPORT = /^([ \t]*)import\s*\{([^}]*)\}\s*from\s*["'](\.\/[^"']+)["'];?\s*
 // Any import left after inlining would make the plain <script> fail to parse in the browser.
 const LEFTOVER_IMPORT = /^[ \t]*import(?=[\s{*"'])[^\n]*/m;
 // An export left after inlining has no binding to hand back (`export default`, `export *`, `export { … } from`).
-const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*/m;
+// An export after a `;` on the same line (`const A = 1; export { A };`) is never stripped either; the
+// part before that `;` must hold no `//`, so the word in a line comment does not count.
+const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export\b[^\n]*/m;
 // Each module runs in its own function scope and hands back its named exports, so two files may
 // both declare the same top-level name (the page and its logic module often both define W and H).
 function inline(dir, file, out) {
