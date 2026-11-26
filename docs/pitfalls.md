@@ -62,7 +62,9 @@ and `test/playwright.test.mjs` checks each `games/*/driver.mjs` for it.
 and Node ends an uncaught error with its stack, a blank line and `Node.js vNN`, so the error never showed up. Dropping the
 blank and version lines is not enough, because the last two lines are then stack frames. Taking the first stack is not
 right either, because a port may log an error before the one that ends it. `crashReason` starts from the last message
-line and adds the first frame of the stack under it. Check a message taken from another program's output against what it
-really prints.
+line and adds the first frame of the stack under it. A message can go on in lines that are not indented
+(`new Error("boom\ndetail")`, an `assert.deepStrictEqual` diff), so from there it goes up to the line where the error
+begins, `Error: boom` or `AssertionError [ERR_ASSERTION]: ...`, but not past an earlier stack. Check a message taken from
+another program's output against what it really prints.
 
 **Third-party libraries can consume `Math.random()` before the game starts.** jQuery 1.8.3 calls `Math.random()` twice during initialization, which prepended two stray draws to `tape` and shifted every mine placement. Reset the RNG tape after page load finishes so `tape` records only calls from the game itself.
