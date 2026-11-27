@@ -64,6 +64,17 @@ test("an export the bundler cannot hand back stops the bundle with the module an
   assert.match(block, /^return \{ A, D \};$/m);
   // Nor inside a string literal.
   const quoted = bundleModule('export const A = "; export default 1";\nexport const D = `x; export { y }`;\n')();
+  // Nor inside a regex literal, even one holding a quote (#86).
+  const regexQuoted = bundleModule(`const R = /"/, S = "; export x";
+export const A = 1;
+`)();
+  assert.match(regexQuoted, /^return \{ A \};$/m);
+  // Nor when a division shares its line with a string.
+  const divided = bundleModule(`const W = 10 / 2, S = "export";
+export const A = 1;
+export const D = 2;
+`)();
+  assert.match(divided, /^return \{ A, D \};$/m);
   assert.match(quoted, /^return \{ A, D \};$/m);
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
