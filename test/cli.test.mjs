@@ -38,6 +38,13 @@ test("--version and -v print the version from package.json", () => {
   }
 });
 
+test("--help mentions --version", () => {
+  const r = run("--help");
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /--version/);
+  assert.match(r.stdout, /--help/);
+});
+
 test("--help and -h after a command print the help and exit 0", () => {
   for (const args of [["-h"], ["verify", "--help"], ["verify", "--port", "web", "-h"], ["new", "--help"], ["record", "-h"]]) {
     const r = run(...args);
