@@ -4,6 +4,8 @@ The most useful contribution is **a new game that passes its own recording**, or
 
 ## Add a game
 
+The skill is the whole workflow; `GAME.md` files live under `games/`, and ports live under `ports/`.
+
 1. Pick a game whose source you may run and redistribute (MIT, BSD, Apache, public domain). Say which licence in the issue first. No commercial games, no trademarked names, no art or sound from the original.
 2. `node bin/rea-games.mjs new <game>` and read `skills/rea-games/SKILL.md`: it is the whole workflow.
 3. Vendor the original unmodified under `originals/<game>` with its licence, and add a line to `NOTICE`.
@@ -13,7 +15,7 @@ The most useful contribution is **a new game that passes its own recording**, or
 
 ## Add an engine port
 
-A port is any program that reads a case on stdin and prints `{trace, tapeUsed}` (see `games/2048/ports/godot/runner.gd` and `games/2048/ports/bevy/runner/src/main.rs`). Add it to the game's `game.json`. It counts as verified only when `verify` passes it.
+A port is any program that reads a case on stdin and prints `{trace, tapeUsed}` (see `games/2048/ports/godot/runner.gd` and `games/2048/ports/bevy/runner/src/main.rs`). Add it to the game's `game.json`. It counts as verified only when `verify` passes it. Write the port from the game's `GAME.md` — the format is documented in [`docs/game-md.md`](docs/game-md.md).
 
 ## Rules
 
