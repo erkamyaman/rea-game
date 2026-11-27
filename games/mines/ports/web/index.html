@@ -121,7 +121,7 @@
       height: auto;
       cursor: pointer;
     }
-    .hidden { display: none; }
+    .hidden { display: none; }.sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     .status-bar {
       margin-top: 12px;
       display: flex;
@@ -163,9 +163,9 @@
       </div>
     </div>
 
-    <canvas id="board" width="780" height="520" class="hidden"></canvas>
+    <canvas id="board" width="780" height="520" class="hidden" role="img" aria-label="Mines board"></canvas>
 
-    <div class="status-bar">
+    <p id="live" class="sr-only" aria-live="polite" aria-atomic="true"></p><div class="status-bar">
       <span id="status-text" class="status-text">Game on :)</span>
       <span>30 &times; 20 Grid</span>
     </div>
@@ -194,7 +194,7 @@ import { COLS, ROWS, createState, step, snapshot } from "./mines.mjs";
     const hudMines = document.getElementById("hud-mines");
     const hudFlags = document.getElementById("hud-flags");
     const hudTime = document.getElementById("hud-time");
-    const statusText = document.getElementById("status-text");
+    const statusText = document.getElementById("status-text"); const set = (id, v) => { const el = document.getElementById(id), s = String(v); if (el.textContent !== s) el.textContent = s; };
 
     canvas.width = COLS * CELL;
     canvas.height = ROWS * CELL;
@@ -254,7 +254,7 @@ import { COLS, ROWS, createState, step, snapshot } from "./mines.mjs";
       hudTime.textContent = `${snap.elapsedTime}s`;
       statusText.textContent = snap.status;
       statusText.classList.toggle("won", snap.status === "You won! :D");
-      statusText.classList.toggle("lost", snap.status === "Game over :(");
+      statusText.classList.toggle("lost", snap.status === "Game over :("); set("live", snap.status + ", " + snap.totalFlags + " flags");
 
       if (onStart) return;
 
