@@ -105,4 +105,9 @@ test("a regex after => or return holding a quote does not hide an export", () =>
   const divided = bundleModule(`export const W = total / 2, S = "; export";
 `)();
   assert.match(divided, /^return \{ W, S \};$/m);
+  // A property or a name that only ends like a keyword is not one, so the slash after it is a division.
+  for (const left of ["o.return", "retur"]) {
+    const out = bundleModule(`export const W = ${left} / 2 + "/", S = "; export";\n`)();
+    assert.match(out, /^return \{ W, S \};$/m, left);
+  }
 });

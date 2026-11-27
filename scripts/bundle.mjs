@@ -22,7 +22,8 @@ const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export
 // pass, left to right, with `//` comments (kept as they are) so a quote in a comment or `/*` in a string does not
 // start the wrong one.
 // A `/` also starts a regex after `=>` or a keyword after which a value is expected (`return`, `typeof`,
-// `void`, `delete`, `in`, `instanceof`, `case`, `yield`, `await`, `throw`), as a whole word, so `x.return / 2` stays a division.
+// `void`, `delete`, `in`, `instanceof`, `case`, `yield`, `await`, `throw`), as a whole word, so `x.return / 2`
+// stays a division.
 const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=(?:[=(,:?]|=>|(?:^|[^.\w$])(?:return|typeof|void|delete|in|instanceof|case|yield|await|throw))\s*)\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^\\/[\n])+\/[a-z]*/g;
 function leftoverExport(body) {
   const blank = body.replace(BLANKABLE, (m) => {
