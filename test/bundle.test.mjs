@@ -89,3 +89,25 @@ export const D = 2;
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
 });
+
+test("a regex after => or return holding a quote does not hide an export", () => {
+  // A regex after `=>` holding a quote (#92).
+  const arrow = bundleModule(`export const isQuote = (c) => /"/.test(c), SEP = "; export";
+`)();
+  assert.match(arrow, /^return \{ isQuote, SEP \};$/m);
+  // And after `return` inside a function body.
+  const returned = bundleModule(`export function isQuote(c) {
+  return /"/.test(c) || c === "; export";
+}
+`)();
+  assert.match(returned, /^return \{ isQuote \};$/m);
+  // But a division sharing its line with a string still bundles.
+  const divided = bundleModule(`export const W = total / 2, S = "; export";
+`)();
+  assert.match(divided, /^return \{ W, S \};$/m);
+  // A property or a name that only ends like a keyword is not one, so the slash after it is a division.
+  for (const left of ["o.return", "retur"]) {
+    const out = bundleModule(`export const W = ${left} / 2 + "/", S = "; export";\n`)();
+    assert.match(out, /^return \{ W, S \};$/m, left);
+  }
+});
