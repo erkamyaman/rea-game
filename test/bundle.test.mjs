@@ -80,7 +80,6 @@ export const D = 2;
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
 });
 
-
 test("an import followed by a // comment is inlined and the comment is kept", () => {
   const out = bundleHtml(`<script type="module">
 import { COLS, ROWS } from "./mines.mjs"; // board size
