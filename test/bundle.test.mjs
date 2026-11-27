@@ -26,6 +26,16 @@ test("an import indented with spaces or tabs is inlined too", () => {
   }
 });
 
+test("an import with a trailing comment is inlined and keeps the comment", () => {
+  for (const comment of ["// board size", "/* board size */"]) {
+    const out = bundleHtml(`<script type="module">\nimport { COLS, ROWS } from "./mines.mjs"; ${comment}\n</script>\n`, page);
+    assert.equal(leftoverImport(out), undefined, comment);
+    assert.match(out, new RegExp(`^const \\{ COLS, ROWS \\} = __mod0; ${comment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
+  }
+  const spaces = bundleHtml(`<script type="module">\nimport { COLS, ROWS } from "./mines.mjs";  \t\n</script>\n`, page);
+  assert.match(spaces, /^const \{ COLS, ROWS \} = __mod0;$/m);
+});
+
 test("an import the bundler cannot inline is reported", () => {
   const out = bundleHtml(`<script type="module">\n  import confetti from "https://cdn.example/confetti.mjs";\n</script>\n`, page);
   assert.match(leftoverImport(out), /import confetti from/);
@@ -65,6 +75,17 @@ test("an export the bundler cannot hand back stops the bundle with the module an
   // Nor inside a string literal.
   const quoted = bundleModule('export const A = "; export default 1";\nexport const D = `x; export { y }`;\n')();
   assert.match(quoted, /^return \{ A, D \};$/m);
+  // Nor inside a regex literal, even one holding a quote, an escape or a slash in a class (#86).
+  for (const re of [String.raw`/"/`, String.raw`/\"/`, String.raw`/[/"]/g`, String.raw`/; export x/`]) {
+    const regexQuoted = bundleModule(`const R = ${re}, S = "; export x";\nexport const A = 1;\n`)();
+    assert.match(regexQuoted, /^return \{ A \};$/m, re);
+  }
+  // Nor when a division shares its line with a string.
+  const divided = bundleModule(`const W = 10 / 2, S = "export";
+export const A = 1;
+export const D = 2;
+`)();
+  assert.match(divided, /^return \{ A, D \};$/m);
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
 });
