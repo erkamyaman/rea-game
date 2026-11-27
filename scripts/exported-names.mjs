@@ -18,7 +18,8 @@ const CONTINUES = /[,=+\-*/%?:|&!<>(\[{.]$/;
 const CONTINUES_NEXT = /^(?:(?!\+\+|--)[-+*/%=<>&|^?:.,]|!=|in(?:stanceof)?(?![\w$]))/;
 const CONTINUES_NAME = /^(?:=(?![=>])|,)/;
 const SKIP = /^(?:\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*/;
-const REGEX_AFTER_KEYWORD = /(?:^|[^\w$.])(?:typeof|void|delete|in|instanceof|return|throw|case|yield|await)\s*$/;
+const WORD = /(?:[\p{ID_Continue}$\u200C\u200D]|\\u(?:[\da-fA-F]{4}|\{[\da-fA-F]+\}))+/uy;
+const REGEX_AFTER_KEYWORD = new Set(["typeof", "void", "delete", "in", "instanceof", "return", "throw", "case", "yield", "await"]);
 
 export function exportedNames(src) {
   const found = [];
@@ -40,6 +41,8 @@ function bindings(src, i) {
   let expectName = true;
   let depth = 0;
   let last = "";
+  let lastEnd = i;
+  let afterKeyword = false;
   let value = false;
   while (i < src.length) {
     if (expectName) {
@@ -49,6 +52,8 @@ function bindings(src, i) {
       out.push([i, name[0]]);
       i += name[0].length;
       last = name[0].at(-1);
+      lastEnd = i;
+      afterKeyword = false;
       expectName = false;
       value = false;
       continue;
@@ -56,7 +61,7 @@ function bindings(src, i) {
     const c = src[i];
     if (c === "/" && src[i + 1] === "/") { while (i < src.length && src[i] !== "\n") i++; continue; }
     if (c === "/" && src[i + 1] === "*") { const end = src.indexOf("*/", i + 2); i = end < 0 ? src.length : end + 2; continue; }
-    if (c === "/" && value && (/[=(:,?+\-*%&|!~^<>\[]/.test(last) || REGEX_AFTER_KEYWORD.test(src.slice(0, i))) && !/(?:\+\+|--)$/.test(src.slice(0, i).trimEnd())) {
+    if (c === "/" && value && (/[=(:,?+\-*%&|!~^<>\[]/.test(last) || afterKeyword) && !/^(?:\+\+|--)$/.test(src.slice(lastEnd - 2, lastEnd))) {
       i++;
       let inClass = false;
       while (i < src.length) {
@@ -68,12 +73,27 @@ function bindings(src, i) {
       }
       while (/[A-Za-z]/.test(src[i] ?? "")) i++;
       last = "x";
+      lastEnd = i;
+      afterKeyword = false;
       continue;
     }
     if (c === '"' || c === "'" || c === "`") {
       i++;
       while (i < src.length && src[i] !== c) i += src[i] === "\\" ? 2 : 1;
-      i++; last = c; continue;
+      i++;
+      last = c;
+      lastEnd = i;
+      afterKeyword = false;
+      continue;
+    }
+    WORD.lastIndex = i;
+    const word = WORD.exec(src);
+    if (word) {
+      afterKeyword = last !== "." && last !== "#" && REGEX_AFTER_KEYWORD.has(word[0]);
+      i = WORD.lastIndex;
+      last = word[0].at(-1);
+      lastEnd = i;
+      continue;
     }
     if ("([{".includes(c)) depth++;
     else if (")]}".includes(c)) depth--;
@@ -81,7 +101,11 @@ function bindings(src, i) {
     else if (depth === 0 && c === ";") break;
     else if (depth === 0 && c === "=") value = true;
     else if (depth === 0 && c === "\n" && !CONTINUES.test(last) && !(value ? CONTINUES_NEXT : CONTINUES_NAME).test(src.slice(i + 1).replace(SKIP, ""))) break;
-    if (!/\s/.test(c)) last = c;
+    if (!/\s/.test(c)) {
+      last = c;
+      lastEnd = i + 1;
+      afterKeyword = false;
+    }
     i++;
   }
   return out;
