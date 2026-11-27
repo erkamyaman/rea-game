@@ -79,6 +79,7 @@ addEventListener("keydown", (e) => { if (e.key in key) { e.preventDefault(); gam
 let t0 = null;
 const board = document.getElementById("board");
 board.addEventListener("touchstart", (e) => { t0 = e.touches.length === 1 ? e.touches[0] : null; }, { passive: true });
+document.addEventListener("touchstart", (e) => { if (e.touches.length > 1) t0 = null; }, { passive: true });
 board.addEventListener("touchcancel", () => { t0 = null; });
 board.addEventListener("touchend", (e) => {
   if (!t0) return; const t = [...e.changedTouches].find((touch) => touch.identifier === t0.identifier);
