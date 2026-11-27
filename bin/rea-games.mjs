@@ -64,8 +64,9 @@ async function main() {
   }
   if (cmd === "verify") {
     const portOpt = flag("--port");
-    const names = rest[0] === "all" || !rest[0] ? listGames(root) : [rest[0]];
-    const results = verifyGames(root, names, portOpt && portOpt !== true ? portOpt : null);
+    const allGames = rest[0] === "all" || !rest[0];
+    const names = allGames ? listGames(root) : [rest[0]];
+    const results = verifyGames(root, names, portOpt && portOpt !== true ? portOpt : null, console.log, { skipMissing: allGames });
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
     process.exit(results.some((r) => r.error || r.failures.length) || results.every((r) => r.skipped) ? 1 : 0);
   }

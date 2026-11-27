@@ -53,6 +53,9 @@ test("an unknown port is reported for that game, not thrown", () => {
     const all = verifyGames(root, ["a", "b"], "nope", quiet);
     assert.equal(all.length, 2);
     assert.ok(all.every((r) => r.skipped && !r.error));
+    const singleAll = verifyGames(root, ["a"], "nope", quiet, { skipMissing: true });
+    assert.equal(singleAll.length, 1);
+    assert.ok(singleAll[0].skipped && !singleAll[0].error);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
