@@ -24,7 +24,7 @@ async function main() {
   if (cmd === "list") {
     for (const g of listGames(root)) {
       const { meta } = loadGame(root, g);
-      console.log(`${g.padEnd(12)} original: ${meta.original.repo} ${meta.original.license}  ports: ${Object.keys(meta.ports).join(", ")}`);
+      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}`);
     }
     return;
   }
