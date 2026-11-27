@@ -18,6 +18,7 @@ const CONTINUES = /[,=+\-*/%?:|&!<>(\[{.]$/;
 const CONTINUES_NEXT = /^(?:(?!\+\+|--)[-+*/%=<>&|^?:.,]|!=|in(?:stanceof)?(?![\w$]))/;
 const CONTINUES_NAME = /^(?:=(?![=>])|,)/;
 const SKIP = /^(?:\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*/;
+const REGEX_AFTER_KEYWORD = /(?:^|[^\w$.])(?:typeof|void|delete|in|instanceof|return|throw|case|yield|await)\s*$/;
 
 export function exportedNames(src) {
   const found = [];
@@ -55,7 +56,7 @@ function bindings(src, i) {
     const c = src[i];
     if (c === "/" && src[i + 1] === "/") { while (i < src.length && src[i] !== "\n") i++; continue; }
     if (c === "/" && src[i + 1] === "*") { const end = src.indexOf("*/", i + 2); i = end < 0 ? src.length : end + 2; continue; }
-    if (c === "/" && value && /[=(:,?+\-*%&|!~^<>\[]/.test(last) && !/(?:\+\+|--)$/.test(src.slice(0, i).trimEnd())) {
+    if (c === "/" && value && (/[=(:,?+\-*%&|!~^<>\[]/.test(last) || REGEX_AFTER_KEYWORD.test(src.slice(0, i))) && !/(?:\+\+|--)$/.test(src.slice(0, i).trimEnd())) {
       i++;
       let inClass = false;
       while (i < src.length) {
