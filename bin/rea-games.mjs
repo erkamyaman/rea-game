@@ -33,6 +33,10 @@ async function main() {
     return;
   }
   if (cmd === "record") {
+    if (!rest[0]) {
+      console.error(`usage: rea-games record <game>   (games: ${listGames(root).join(", ")})`);
+      process.exit(2);
+    }
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
     const cd = path.join(dir, "cases");
