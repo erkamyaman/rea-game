@@ -5,16 +5,20 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { listGames, loadGame, verifyGames, summaryLines, packCases, packLine } from "../lib/verify.mjs";
 import { scaffold } from "../lib/scaffold.mjs";
+
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [cmd, ...rest] = process.argv.slice(2);
 const flag = (n) => { const i = rest.indexOf(n); return i < 0 ? null : rest.splice(i, 2)[1] ?? true; };
+
 const help = `rea-games: reverse-engineer a game's behavior, then check a rebuild against it
-rea-games list                        games, their ports and recorded cases
-rea-games new <game>                  scaffold games/<game> (game.json, record.mjs, GAME.md, port stubs)
-rea-games record <game>               run the original and write cases/*.json
-rea-games pack <game|all>             gzip the cases (the repository keeps them packed)
+
+rea-games list                          games, their ports and recorded cases
+rea-games new <game>                    scaffold games/<game> (game.json, record.mjs, GAME.md, port stubs)
+rea-games record <game>                 run the original and write cases/*.json
+rea-games pack <game|all>               gzip the cases (the repository keeps them packed)
 rea-games verify <game|all> [--port web|godot|bevy]   replay every case through a port
 `;
+
 async function main() {
   if (!cmd || cmd === "help" || cmd === "--help") return console.log(help);
   if (cmd === "list") {
