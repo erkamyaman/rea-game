@@ -87,3 +87,6 @@ of editing it by hand.
 
 **A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
 when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
+
+**Mines needs a reveal before flagging is possible.** When Flag mode is active on a fresh or reset board, send
+the first tap as a reveal. The timer starts on that reveal, and subsequent taps can toggle flags.
