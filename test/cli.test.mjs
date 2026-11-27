@@ -69,3 +69,9 @@ test("new with an invalid name keeps the name-rule error and exits 1", () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /^game names are lowercase letters, digits and dashes$/m);
 });
+
+test("verify --port with no value, or followed by a flag, exits 2 with the game's ports", () => {
+  const r = run("verify", "2048", "--port", "--something");
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr.trim(), "--port needs a value (2048 has: web, godot, bevy)");
+});

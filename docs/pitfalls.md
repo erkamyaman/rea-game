@@ -87,3 +87,5 @@ of editing it by hand.
 
 **A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
 when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
+
+**A flag with no value came back as `true`, and the code read that as "no port".** `--port` at the end of the command line made the option parser return `true`, so `verify` ran every port, including the slow Bevy build. A value is now required (`--port web` or `--port=web`); a missing one, or one followed by another flag, exits 2, and unknown flags after `verify` are rejected instead of being taken as a game name.
