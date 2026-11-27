@@ -20,7 +20,7 @@ const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export
 // String literals and block comments are blanked (same length, newlines kept, quotes kept) before that check, so
 // `"; export"` in a string or `/* one; export two */` in a comment is not code. They are matched in one pass, left to
 // right, with `//` comments (kept as they are) so a quote in a comment or `/*` in a string does not start the wrong one.
-const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)/g;
+const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=[=(,:?]\s*)\/(?:\.|\[(?:\.|[^\\]])*\]|[^\\/])*\/[a-z]*/g;
 function leftoverExport(body) {
   const blank = body.replace(BLANKABLE, (m) => {
     if (m.startsWith("//")) return m;
