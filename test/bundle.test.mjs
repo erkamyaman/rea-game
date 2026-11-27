@@ -32,6 +32,8 @@ test("an import with a trailing comment is inlined and keeps the comment", () =>
     assert.equal(leftoverImport(out), undefined, comment);
     assert.match(out, new RegExp(`^const \\{ COLS, ROWS \\} = __mod0; ${comment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
   }
+  const spaces = bundleHtml(`<script type="module">\nimport { COLS, ROWS } from "./mines.mjs";  \t\n</script>\n`, page);
+  assert.match(spaces, /^const \{ COLS, ROWS \} = __mod0;$/m);
 });
 
 test("an import the bundler cannot inline is reported", () => {
