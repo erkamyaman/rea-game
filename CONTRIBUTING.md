@@ -20,7 +20,9 @@ A port is any program that reads a case on stdin and prints `{trace, tapeUsed}` 
 - Recording a browser game needs Playwright with Chromium. If it is installed outside the repository, set
   `PLAYWRIGHT_PATH` to that install's `playwright` folder; drivers load it through `lib/playwright.mjs`.
 - `npm test` runs the unit tests in `test/` (Node only, a few seconds); run it after changing anything in `lib/`.
-  `npm run verify` replays every case through every port. After changing a web port, run `node scripts/bundle.mjs` to rebuild the play pages in `docs/play/`; `node scripts/bundle.mjs --check` verifies they are up to date (CI runs it after `npm test`).
+  `npm run verify` replays every case through every port.
+- After changing a web port, run `node scripts/bundle.mjs` to rebuild the play pages in `docs/play/`.
+  `node scripts/bundle.mjs --check` says which pages are stale without writing them; CI runs it after `npm test`.
 - Never edit a recording by hand, and never loosen a comparison to get green.
 - Report numbers as `verify` printed them, including what is not covered.
 - Add a mistake worth not repeating to `docs/pitfalls.md` in the same change.

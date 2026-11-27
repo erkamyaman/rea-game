@@ -74,8 +74,10 @@ export function leftoverImport(html) {
 }
 
 function main() {
-  const check = process.argv.includes("--check"); if (!check) fs.mkdirSync(path.join(root, "docs/play"), { recursive: true }); const stale = [];
+  const check = process.argv.includes("--check");
+  if (!check) fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
   let failed = false;
+  const stale = [];
   for (const g of listGames(root)) {
     const { dir, meta } = loadGame(root, g);
     const play = Object.values(meta.ports).find((p) => p.play)?.play;
@@ -90,7 +92,12 @@ function main() {
       failed = true;
       continue;
     }
-    if (check) { let current; try { current = fs.readFileSync(path.join(root, page), "utf8"); } catch { current = null; } if (current !== out) stale.push(page); } else fs.writeFileSync(path.join(root, page), out);
+    if (check) {
+      const file = path.join(root, page);
+      if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== out) stale.push(page);
+    } else {
+      fs.writeFileSync(path.join(root, page), out);
+    }
     const left = leftoverImport(out);
     if (left) {
       console.error(`${page}: import not inlined, the page will not load: ${left.trim()}`);
@@ -99,7 +106,12 @@ function main() {
     }
     if (!check) console.log("wrote " + page, out.length, "bytes");
   }
-  if (check) { for (const page of stale) console.log("stale " + page); if (stale.length) console.log("run: node scripts/bundle.mjs to rebuild"); if (failed || stale.length) process.exit(1); console.log("all play pages up to date"); } if (failed) process.exit(1);
+  if (check) {
+    for (const page of stale) console.log("stale " + page);
+    if (stale.length) console.log("run: node scripts/bundle.mjs to rebuild");
+    else if (!failed) console.log("all play pages up to date");
+  }
+  if (failed || stale.length) process.exit(1);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main();
