@@ -95,17 +95,17 @@ function main() {
       failed = true;
       continue;
     }
-    if (check) {
+        const left = leftoverImport(out);
+        if (left) {
+                console.error(`${page}: import not inlined, the page will not load: ${left.trim()}`);
+          failed = true;
+          continue;
+        }
+          if (check) {
       const file = path.join(root, page);
       if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== out) stale.push(page);
     } else {
       fs.writeFileSync(path.join(root, page), out);
-    }
-    const left = leftoverImport(out);
-    if (left) {
-      console.error(`${page}: import not inlined, the page will not load: ${left.trim()}`);
-      failed = true;
-      continue;
     }
     if (!check) console.log("wrote " + page, out.length, "bytes");
   }
