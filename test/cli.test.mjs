@@ -45,3 +45,15 @@ test("--help and -h after a command print the help and exit 0", () => {
     assert.match(r.stdout, /^rea-games: reverse-engineer/, args.join(" "));
   }
 });
+
+test("new with no name prints its usage and exits 2", () => {
+  const r = run("new");
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr.trim(), "usage: rea-games new <game>   (lowercase letters, digits and dashes)");
+});
+
+test("new with an invalid name keeps the name-rule error and exits 1", () => {
+  const r = run("new", "Bad_Name");
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /^game names are lowercase letters, digits and dashes$/m);
+});
