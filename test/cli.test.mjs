@@ -9,6 +9,18 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const bin = path.join(root, "bin", "rea-games.mjs");
 const run = (...args) => spawnSync(process.execPath, [bin, ...args], { encoding: "utf8" });
 
+test("new with no name prints its usage and exits 2", () => {
+  const r = run("new");
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /^usage: rea-games new <game>   \(lowercase letters, digits and dashes\)$/m);
+});
+
+test("new with an invalid name keeps its error and exits 1", () => {
+  const r = run("new", "Bad_Name");
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /game names are lowercase letters, digits and dashes/);
+});
+
 test("record with no game prints its usage and exits 2", () => {
   const r = run("record");
   assert.equal(r.status, 2);
