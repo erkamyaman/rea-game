@@ -38,10 +38,34 @@ test("--version and -v print the version from package.json", () => {
   }
 });
 
+test("--help mentions --version", () => {
+  const r = run("--help");
+  assert.equal(r.status, 0);
+  const lines = r.stdout.split("\n");
+  const column = (start) => { const l = lines.find((x) => x.startsWith(start)); assert.ok(l, start); return start.length + l.slice(start.length).search(/\S/); };
+  const col = column("  rea-games list");
+  assert.equal(column("  rea-games --version, -v"), col);
+  assert.equal(column("  rea-games --help, -h"), col);
+  assert.match(r.stdout, /^  rea-games --version, -v +print the version from package\.json$/m);
+  assert.match(r.stdout, /^  rea-games --help, -h +show this help, on its own or after any command$/m);
+});
+
 test("--help and -h after a command print the help and exit 0", () => {
   for (const args of [["-h"], ["verify", "--help"], ["verify", "--port", "web", "-h"], ["new", "--help"], ["record", "-h"]]) {
     const r = run(...args);
     assert.equal(r.status, 0, args.join(" "));
     assert.match(r.stdout, /^rea-games: reverse-engineer/, args.join(" "));
   }
+});
+
+test("new with no name prints its usage and exits 2", () => {
+  const r = run("new");
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr.trim(), "usage: rea-games new <game>   (lowercase letters, digits and dashes)");
+});
+
+test("new with an invalid name keeps the name-rule error and exits 1", () => {
+  const r = run("new", "Bad_Name");
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /^game names are lowercase letters, digits and dashes$/m);
 });
