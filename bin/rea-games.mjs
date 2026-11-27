@@ -12,10 +12,10 @@ const flag = (n) => { const i = rest.indexOf(n); return i < 0 ? null : rest.spli
 
 const help = `rea-games: reverse-engineer a game's behavior, then check a rebuild against it
 
-rea-games list                          games, their ports and recorded cases
-rea-games new <game>                    scaffold games/<game> (game.json, record.mjs, GAME.md, port stubs)
-rea-games record <game>                 run the original and write cases/*.json
-rea-games pack <game|all>               gzip the cases (the repository keeps them packed)
+rea-games list                        games, their ports and recorded cases
+rea-games new <game>                  scaffold games/<game> (game.json, record.mjs, GAME.md, port stub)
+rea-games record <game>               run the original and write cases/*.json
+rea-games pack <game|all>             gzip the cases (the repository keeps them packed)
 rea-games verify <game|all> [--port web|godot|bevy]   replay every case through a port
 `;
 
