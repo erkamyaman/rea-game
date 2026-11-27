@@ -97,6 +97,43 @@ test("a crashed Node port whose message goes on in lines that are not indented k
   }
 });
 
+test("a missing port command is named once, not once per case", () => {
+  const missing = { cmd: ["rea-games-no-such-command"] };
+  const root = makeRoot({ a: { missing } });
+  fs.copyFileSync(path.join(root, "games", "a", "cases", "one.json"), path.join(root, "games", "a", "cases", "two.json"));
+  try {
+    const [r] = verifyGames(root, ["a"], null, quiet);
+    assert.deepEqual([r.cases, r.passed], [2, 0]);
+    assert.deepEqual(r.failures.map((f) => f.problem), ["rea-games-no-such-command not found"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a missing Godot names the binary and points to REA_GODOT", () => {
+  const root = makeRoot({ a: { godot: { cmd: ["godot", "--headless"] } } });
+  const saved = process.env.REA_GODOT;
+  process.env.REA_GODOT = path.join(root, "no-godot");
+  try {
+    const [r] = verifyGames(root, ["a"], null, quiet);
+    assert.deepEqual(r.failures.map((f) => f.problem), [`${process.env.REA_GODOT} not found (install Godot 4.4 or set REA_GODOT to the binary)`]);
+  } finally {
+    if (saved === undefined) delete process.env.REA_GODOT; else process.env.REA_GODOT = saved;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a port killed by a signal says which signal", () => {
+  const killed = { cmd: ["node", "-e", "process.kill(process.pid, 'SIGKILL')"] };
+  const root = makeRoot({ a: { killed } });
+  try {
+    const [r] = verifyGames(root, ["a"], null, quiet);
+    assert.deepEqual(r.failures.map((f) => f.problem), ["port was killed by SIGKILL"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("crashReason drops blank lines and the Node.js version line, and keeps a panic's last two lines", () => {
   const node = "[eval]:1\nthrow new Error('boom')\n^\n\nError: boom\n    at [eval]:1:7\n    at runScriptInThisContext (node:internal/vm:209:10)\n\nNode.js v22.23.5\n";
   assert.equal(crashReason(node), "Error: boom | at [eval]:1:7");
