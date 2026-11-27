@@ -78,6 +78,8 @@ export const D = 2;
   assert.match(divided, /^return \{ A, D \};$/m);
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
+});
+
 
 test("an import followed by a // comment is inlined and the comment is kept", () => {
   const out = bundleHtml(`<script type="module">
@@ -94,5 +96,4 @@ console.log(COLS, ROWS);
 `, page);
   assert.equal(leftoverImport(block), undefined);
   assert.match(block, /const \{ COLS, ROWS \} = __mod0; \/\* board size \*\//m);
-});
 });
