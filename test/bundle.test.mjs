@@ -54,11 +54,14 @@ test("an export the bundler cannot hand back stops the bundle with the module an
     assert.throws(bundleModule(`const A = 1, D = 2;\n${line}\n`), (e) => e.message.includes("x.mjs") && e.message.includes(line.trim()), line);
   }
   // An export after other code on the same line is refused too (#74), but not the word in a comment.
-  for (const line of ["const B = 1; export { B };", "foo(); export const E = 2;"]) {
+  for (const line of ["const B = 1; export { B };", "foo(); export const E = 2;", "/* note */ const B = 1; export { B };"]) {
     assert.throws(bundleModule(`export const A = 1, D = 2;\nfunction foo() {}\n${line}\n`), (e) => e.message.includes("x.mjs") && e.message.includes(line), line);
   }
   const commented = bundleModule("export const A = 1; // the bundler reads each export; export one name or many\nexport const D = 2;\n")();
   assert.match(commented, /^return \{ A, D \};$/m);
+  // Nor inside a block comment, on one line or spread over several (#79).
+  const block = bundleModule("/* step one; export the names below */\nexport const A = 1;\n/*\n * do this; export that\n * it's fine; export too\n */\nexport const D = 2; /* a; export b */\n")();
+  assert.match(block, /^return \{ A, D \};$/m);
   // Nor inside a string literal.
   const quoted = bundleModule('export const A = "; export default 1";\nexport const D = `x; export { y }`;\n')();
   assert.match(quoted, /^return \{ A, D \};$/m);
