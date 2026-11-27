@@ -84,3 +84,6 @@ comments and read the whole identifier.
 **A generated play page can hide a source-page fix.** `docs/play/*.html` is built from each game's
 `ports/web/index.html`; change the source page, run `node scripts/bundle.mjs`, and review the generated result instead
 of editing it by hand.
+
+**A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
+when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
