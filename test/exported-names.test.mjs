@@ -28,6 +28,18 @@ test("regex literals do not split or hide exported bindings", () => {
   assert.deepEqual(exportedNames("export const H = i-- / 2, D = /,/;\n"), ["H", "D"]);
 });
 
+test("regex detection uses the previous token across comments", () => {
+  assert.deepEqual(exportedNames("export const A = typeof /* comment */ /,/, B = 2;"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = typeof // comment\n  /,/, B = 2;"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = i++ /* comment */ / 2, B = /,/;"), ["A", "B"]);
+});
+
+test("names ending in a keyword can be followed by division", () => {
+  assert.deepEqual(exportedNames("export const A = αreturn / 2, B = 3;"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = \\u{61}return / 2, B = 3;"), ["A", "B"]);
+  assert.deepEqual(exportedNames("export const A = obj. /* comment */ return / 2, B = 3;"), ["A", "B"]);
+});
+
 test("functions and classes are listed in source order", () => {
   assert.deepEqual(
     exportedNames("export const K = 1;\nexport function f(a, b) {}\nexport async function g() {}\nexport class C {}\n"),
