@@ -5,7 +5,8 @@ description: Reverse-engineer a game's behavior and rebuild it in another engine
 
 # rea-games
 
-You rebuild a game from what it **does**, and prove it. The loop is: record the original, write the spec, build the port, verify, fix, repeat. Never call a port done until `rea-games verify` says every case is identical.
+You rebuild a game from what it **does**, and prove it. The loop is: record the original, write the spec, build the
+port, verify, fix, repeat. Never call a port done until `rea-games verify` says every case is identical.
 
 ## Before you start
 
