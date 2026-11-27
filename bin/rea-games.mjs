@@ -34,6 +34,10 @@ async function main() {
     return;
   }
   if (cmd === "new") {
+  if (!rest[0]) {
+    console.error("usage: rea-games new <game>   (lowercase letters, digits and dashes)");
+    process.exit(2);
+  }
     console.log("created", scaffold(root, rest[0] ?? ""));
     return;
   }
