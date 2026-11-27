@@ -9,8 +9,8 @@ import { EXPORT_DECL, EXPORT_LIST, exportedNames } from "./exported-names.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const modules = new Map();
-// Leading spaces or tabs are allowed: a page often indents the code inside its <script>.
-const IMPORT = /^([ \t]*)import\s*\{([^}]*)\}\s*from\s*["'](\.\/[^"']+)["'];?\s*$/gm;
+// Leading spaces or tabs are allowed: a page often indents the code inside its <script>. A trailing // or /* */ comment is allowed too and is kept in the inlined line.
+const IMPORT = /^([ \t]*)import\s*\{([^}]*)\}\s*from\s*["'](\.\/[^"']+)["'];?((?:[ \t]*\/\/[^\n]*)|(?:[ \t]*\/\*.*?\*\/))?\s*$/gm;
 // Any import left after inlining would make the plain <script> fail to parse in the browser.
 const LEFTOVER_IMPORT = /^[ \t]*import(?=[\s{*"'])[^\n]*/m;
 // An export left after inlining has no binding to hand back (`export default`, `export *`, `export { … } from`).
@@ -50,10 +50,10 @@ function inline(dir, file, out) {
   return id;
 }
 function imports(src, dir, out) {
-  return src.replace(IMPORT, (_, indent, list, rel) => {
+  return src.replace(IMPORT, (_, indent, list, rel, comment) => {
     const id = inline(dir, rel, out);
     const binds = list.split(",").map((x) => x.trim()).filter(Boolean).map((x) => x.replace(/\s+as\s+/, ": "));
-    return `${indent}const { ${binds.join(", ")} } = ${id};`;
+    return `${indent}const { ${binds.join(", ")} } = ${id};${comment ?? ""}`;
   });
 }
 // One page's html with its module script turned into a plain <script> holding every inlined module.
