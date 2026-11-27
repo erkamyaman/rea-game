@@ -69,3 +69,11 @@ test("new with an invalid name keeps the name-rule error and exits 1", () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /^game names are lowercase letters, digits and dashes$/m);
 });
+
+test("list shows recorded case counts at the end of each line", () => {
+  const r = run("list");
+  assert.equal(r.status, 0);
+  const line = r.stdout.split("\n").find((l) => l.startsWith("2048 "));
+  assert.ok(line, r.stdout);
+  assert.match(line, /cases: 19$/);
+});
