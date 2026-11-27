@@ -80,3 +80,7 @@ another program's output against what it really prints.
 The export scanner missed a regex after `typeof` when a comment came between them. It also mistook the end of a
 Unicode identifier for a keyword. When deciding whether a slash starts a regex, use the last token after skipping
 comments and read the whole identifier.
+
+**A generated play page can hide a source-page fix.** `docs/play/*.html` is built from each game's
+`ports/web/index.html`; change the source page, run `node scripts/bundle.mjs`, and review the generated result instead
+of editing it by hand.
