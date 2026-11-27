@@ -17,6 +17,8 @@ const help = `rea-games: reverse-engineer a game's behavior, then check a rebuil
   rea-games record <game>               run the original and write cases/*.json
   rea-games pack <game|all>             gzip the cases (the repository keeps them packed)
   rea-games verify <game|all> [--port web|godot|bevy]   replay every case through a port
+  rea-games --version, -v               print the version from package.json
+  rea-games --help, -h                  show this help, on its own or after any command
 `;
 
 async function main() {

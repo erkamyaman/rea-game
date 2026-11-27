@@ -38,6 +38,18 @@ test("--version and -v print the version from package.json", () => {
   }
 });
 
+test("--help mentions --version", () => {
+  const r = run("--help");
+  assert.equal(r.status, 0);
+  const lines = r.stdout.split("\n");
+  const column = (start) => { const l = lines.find((x) => x.startsWith(start)); assert.ok(l, start); return start.length + l.slice(start.length).search(/\S/); };
+  const col = column("  rea-games list");
+  assert.equal(column("  rea-games --version, -v"), col);
+  assert.equal(column("  rea-games --help, -h"), col);
+  assert.match(r.stdout, /^  rea-games --version, -v +print the version from package\.json$/m);
+  assert.match(r.stdout, /^  rea-games --help, -h +show this help, on its own or after any command$/m);
+});
+
 test("--help and -h after a command print the help and exit 0", () => {
   for (const args of [["-h"], ["verify", "--help"], ["verify", "--port", "web", "-h"], ["new", "--help"], ["record", "-h"]]) {
     const r = run(...args);
