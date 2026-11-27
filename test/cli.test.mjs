@@ -69,3 +69,20 @@ test("new with an invalid name keeps the name-rule error and exits 1", () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /^game names are lowercase letters, digits and dashes$/m);
 });
+
+test("unknown options after a command exit 2 with an error, and --version/-v print version", () => {
+  const r1 = run("verify", "2048", "--prot", "web");
+  assert.equal(r1.status, 2);
+  assert.equal(r1.stderr.trim(), 'rea-games: unknown option "--prot"');
+
+  const r2 = run("record", "--dry-run");
+  assert.equal(r2.status, 2);
+  assert.equal(r2.stderr.trim(), 'rea-games: unknown option "--dry-run"');
+
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  for (const args of [["list", "--version"], ["verify", "-v"]]) {
+    const r = run(...args);
+    assert.equal(r.status, 0, args.join(" "));
+    assert.equal(r.stdout, `${version}\n`, args.join(" "));
+  }
+});

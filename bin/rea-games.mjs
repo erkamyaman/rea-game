@@ -27,7 +27,23 @@ async function main() {
     const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
     return console.log(version);
   }
-  if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
+  if (["list", "new", "record", "pack", "verify"].includes(cmd)) {
+    if (rest.includes("--help") || rest.includes("-h")) return console.log(help);
+    if (rest.includes("--version") || rest.includes("-v")) {
+      const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+      return console.log(version);
+    }
+    for (let i = 0; i < rest.length; i++) {
+      if (cmd === "verify" && rest[i] === "--port") {
+        i++;
+        continue;
+      }
+      if (rest[i].startsWith("-")) {
+        console.error(`rea-games: unknown option "${rest[i]}"`);
+        process.exit(2);
+      }
+    }
+  }
   if (cmd === "list") {
     for (const g of listGames(root)) {
       const { meta } = loadGame(root, g);
