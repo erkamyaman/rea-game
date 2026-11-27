@@ -26,6 +26,16 @@ test("an import indented with spaces or tabs is inlined too", () => {
   }
 });
 
+test("an import with a trailing comment is inlined and keeps the comment", () => {
+  for (const comment of ["// board size", "/* board size */"]) {
+    const out = bundleHtml(`<script type="module">\nimport { COLS, ROWS } from "./mines.mjs"; ${comment}\n</script>\n`, page);
+    assert.equal(leftoverImport(out), undefined, comment);
+    assert.match(out, new RegExp(`^const \\{ COLS, ROWS \\} = __mod0; ${comment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
+  }
+  const spaces = bundleHtml(`<script type="module">\nimport { COLS, ROWS } from "./mines.mjs";  \t\n</script>\n`, page);
+  assert.match(spaces, /^const \{ COLS, ROWS \} = __mod0;$/m);
+});
+
 test("an import the bundler cannot inline is reported", () => {
   const out = bundleHtml(`<script type="module">\n  import confetti from "https://cdn.example/confetti.mjs";\n</script>\n`, page);
   assert.match(leftoverImport(out), /import confetti from/);
