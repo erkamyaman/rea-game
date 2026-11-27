@@ -152,7 +152,8 @@
         <span>Time: <strong id="hud-time">0s</strong></span>
       </div>
       <div class="controls">
-        <button id="btn-reset" class="hidden">Reset</button><button id="btn-flag" class="hidden" aria-pressed="false">Flag</button>
+        <button id="btn-reset" class="hidden">Reset</button>
+        <button id="btn-flag" class="hidden" aria-pressed="false">Flag</button>
         <button id="btn-menu" class="hidden">Difficulty</button>
       </div>
     </div>
@@ -424,7 +425,9 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
     const ctx = canvas.getContext("2d");
     const startScreen = document.getElementById("start-screen");
     const btnReset = document.getElementById("btn-reset");
-    const btnMenu = document.getElementById("btn-menu"); const btnFlag = document.getElementById("btn-flag"); let flagMode = false;
+    const btnMenu = document.getElementById("btn-menu");
+    const btnFlag = document.getElementById("btn-flag");
+    let flagMode = false;
     const hudMines = document.getElementById("hud-mines");
     const hudFlags = document.getElementById("hud-flags");
     const hudTime = document.getElementById("hud-time");
@@ -481,7 +484,8 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       startScreen.classList.toggle("hidden", !onStart);
       canvas.classList.toggle("hidden", onStart);
       btnReset.classList.toggle("hidden", onStart);
-      btnMenu.classList.toggle("hidden", onStart); btnFlag.classList.toggle("hidden", onStart);
+      btnMenu.classList.toggle("hidden", onStart);
+      btnFlag.classList.toggle("hidden", onStart);
 
       hudMines.textContent = String(snap.totalMines);
       hudFlags.textContent = String(snap.totalFlags);
@@ -549,7 +553,14 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       render();
     });
 
-    btnFlag.addEventListener("click", () => { flagMode = !flagMode; btnFlag.classList.toggle("primary", flagMode); btnFlag.setAttribute("aria-pressed", String(flagMode)); btnFlag.textContent = flagMode ? "Flag ✓" : "Flag"; }); canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    btnFlag.addEventListener("click", () => {
+      flagMode = !flagMode;
+      btnFlag.classList.toggle("primary", flagMode);
+      btnFlag.setAttribute("aria-pressed", String(flagMode));
+      btnFlag.textContent = flagMode ? "Flag ✓" : "Flag";
+    });
+
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     canvas.addEventListener("mouseup", (e) => {
       if (e.button !== 0 && e.button !== 2) return;
