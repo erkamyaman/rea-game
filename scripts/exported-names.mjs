@@ -55,7 +55,7 @@ function bindings(src, i) {
     const c = src[i];
     if (c === "/" && src[i + 1] === "/") { while (i < src.length && src[i] !== "\n") i++; continue; }
     if (c === "/" && src[i + 1] === "*") { const end = src.indexOf("*/", i + 2); i = end < 0 ? src.length : end + 2; continue; }
-    if (c === "/" && value && /[=(:,?+\-*%&|!~^<>\[]/.test(last)) {
+    if (c === "/" && value && /[=(:,?+\-*%&|!~^<>\[]/.test(last) && !/(?:\+\+|--)$/.test(src.slice(0, i).trimEnd())) {
       i++;
       let inClass = false;
       while (i < src.length) {

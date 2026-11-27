@@ -24,6 +24,8 @@ test("regex literals do not split or hide exported bindings", () => {
   assert.deepEqual(exportedNames("export const SEP = /,/, B = 2;\n"), ["SEP", "B"]);
   assert.deepEqual(exportedNames('export const A = "^" + /foo,bar/.source, B = 2;\n'), ["A", "B"]);
   assert.deepEqual(exportedNames("export const H = W / 2, D = 3;\n"), ["H", "D"]);
+  assert.deepEqual(exportedNames("export const H = i++ / 2, D = 3;\n"), ["H", "D"]);
+  assert.deepEqual(exportedNames("export const H = i-- / 2, D = /,/;\n"), ["H", "D"]);
 });
 
 test("functions and classes are listed in source order", () => {
