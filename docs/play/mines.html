@@ -154,13 +154,14 @@
       </div>
       <div class="controls">
         <button id="btn-reset" class="hidden">Reset</button>
+        <button id="btn-flag" class="hidden" aria-pressed="false">Flag</button>
         <button id="btn-menu" class="hidden">Difficulty</button>
       </div>
     </div>
 
     <div id="start-screen" class="start-screen">
       <h2>Choose Difficulty</h2>
-      <p>Left-click to reveal a tile. Right-click a hidden tile to place or remove a flag. Right-click a revealed number to chord its neighbors. Flag every mine to win.</p>
+      <p>Left-click to reveal a tile. Right-click a hidden tile to place or remove a flag. Right-click a revealed number to chord its neighbors. Flag every mine to win. On a touch screen, use the Flag button to place or remove flags.</p>
       <div class="diff-row">
         <button class="primary" data-diff="easy">Easy</button>
         <button class="primary" data-diff="medium">Medium</button>
@@ -427,6 +428,8 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
     const startScreen = document.getElementById("start-screen");
     const btnReset = document.getElementById("btn-reset");
     const btnMenu = document.getElementById("btn-menu");
+    const btnFlag = document.getElementById("btn-flag");
+    let flagMode = false;
     const hudMines = document.getElementById("hud-mines");
     const hudFlags = document.getElementById("hud-flags");
     const hudTime = document.getElementById("hud-time");
@@ -485,6 +488,7 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       canvas.classList.toggle("hidden", onStart);
       btnReset.classList.toggle("hidden", onStart);
       btnMenu.classList.toggle("hidden", onStart);
+      btnFlag.classList.toggle("hidden", onStart);
 
       hudMines.textContent = String(snap.totalMines);
       hudFlags.textContent = String(snap.totalFlags);
@@ -553,6 +557,13 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       render();
     });
 
+    btnFlag.addEventListener("click", () => {
+      flagMode = !flagMode;
+      btnFlag.classList.toggle("primary", flagMode);
+      btnFlag.setAttribute("aria-pressed", String(flagMode));
+      btnFlag.textContent = flagMode ? "Flag ✓" : "Flag";
+    });
+
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     canvas.addEventListener("mouseup", (e) => {
@@ -560,7 +571,7 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       const rect = canvas.getBoundingClientRect();
       const x = Math.floor(((e.clientX - rect.left) * canvas.width) / rect.width / CELL);
       const y = Math.floor(((e.clientY - rect.top) * canvas.height) / rect.height / CELL);
-      const button = e.button === 2 ? "right" : "left";
+      const button = flagMode || e.button === 2 ? "right" : "left";
       step(state, { dt: 0, action: { type: "click", button, x, y } }, Math.random);
       render();
     });
