@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { formatSize, loadCases, packCases, packLine } from "../lib/verify.mjs";
+import { formatSize, loadCases, loadGame, packCases, packLine } from "../lib/verify.mjs";
 
 // Every shipped game has packed cases, so both sides of pack/load need a test of their own.
 function caseText(n) {
@@ -98,4 +98,17 @@ test("formatSize shows KB below 0.1 MB and MB from there up", () => {
   assert.equal(formatSize(100_000), "0.1 MB");
   assert.equal(formatSize(2_345_678), "2.3 MB");
   assert.equal(packLine("empty", { packed: 0, alreadyPacked: 0, before: 0, after: 0 }), "empty: no cases to pack");
+});
+
+test("an unknown game and a game with no cases yet say what to do", () => {
+  const root = tempRoot();
+  try {
+    makeGame(root, "known", {});
+    fs.mkdirSync(path.join(root, "games", "fresh"));
+    fs.writeFileSync(path.join(root, "games", "fresh", "game.json"), JSON.stringify({ name: "fresh", ports: {} }));
+    assert.throws(() => loadGame(root, "nope"), { message: 'no game "nope" (games: fresh, known). Create one with: rea-games new nope' });
+    assert.throws(() => packCases(root, "fresh"), { message: "fresh has no cases yet; run: rea-games record fresh" });
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

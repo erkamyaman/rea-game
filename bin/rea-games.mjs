@@ -20,7 +20,12 @@ const help = `rea-games: reverse-engineer a game's behavior, then check a rebuil
 `;
 
 async function main() {
-  if (!cmd || cmd === "help" || cmd === "--help") return console.log(help);
+  if (!cmd || cmd === "help" || cmd === "--help" || cmd === "-h") return console.log(help);
+  if (cmd === "--version" || cmd === "-v") {
+    const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+    return console.log(version);
+  }
+  if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
   if (cmd === "list") {
     for (const g of listGames(root)) {
       const { meta } = loadGame(root, g);
@@ -33,6 +38,10 @@ async function main() {
     return;
   }
   if (cmd === "record") {
+    if (!rest[0]) {
+      console.error(`usage: rea-games record <game>   (games: ${listGames(root).join(", ")})`);
+      process.exit(2);
+    }
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
     const cd = path.join(dir, "cases");
@@ -54,6 +63,7 @@ async function main() {
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
     process.exit(results.some((r) => r.error || r.failures.length) ? 1 : 0);
   }
+  console.error(`rea-games: unknown command "${cmd}"\n`);
   console.error(help);
   process.exit(2);
 }
