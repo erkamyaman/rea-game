@@ -182,3 +182,19 @@ test("crashReason starts at the line where the error begins when its message goe
   const logged = "Error: warning first\n    at warn (runner.mjs:1:1)\nOops: boom\ndetail\n    at main (runner.mjs:2:1)\n";
   assert.equal(crashReason(logged), "detail | at main (runner.mjs:2:1)");
 });
+
+test("a game with no cases folder fails the same way as an empty one", () => {
+  const root = makeRoot({ a: { web: {} }, b: { web: {} } });
+  fs.rmSync(path.join(root, "games", "a", "cases"), { recursive: true });
+  try {
+    const lines = [];
+    const results = verifyGames(root, ["a", "b"], null, (l) => lines.push(l));
+    assert.ok(lines.includes("  FAIL no recorded cases in games/a/cases; run: rea-games record a"), lines.join("\n"));
+    assert.deepEqual(summaryLines(results), [
+      "a / web  => FAIL no recorded cases in games/a/cases; run: rea-games record a",
+      "b / web  => 1/1 cases identical, 2 inputs, 2 recorded states",
+    ]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

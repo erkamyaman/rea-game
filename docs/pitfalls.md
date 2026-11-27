@@ -87,3 +87,7 @@ of editing it by hand.
 
 **A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
 when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
+
+**A missing folder is not an empty folder to `readdirSync`.** Reading a directory that does not exist throws
+a raw ENOENT; check `existsSync` first when "not there yet" is an expected state, so the caller can print its
+readable message instead of a file-system error.
