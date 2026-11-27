@@ -97,6 +97,22 @@ test("a crashed Node port whose message goes on in lines that are not indented k
   }
 });
 
+test("a game with no recorded cases fails and says to record", () => {
+  const root = makeRoot({ a: { web: {} }, b: { web: {} } });
+  fs.rmSync(path.join(root, "games", "a", "cases", "one.json"));
+  try {
+    const lines = [];
+    const results = verifyGames(root, ["a", "b"], null, (l) => lines.push(l));
+    assert.ok(lines.includes("  FAIL no recorded cases in games/a/cases; run: rea-games record a"), lines.join("\n"));
+    assert.deepEqual(summaryLines(results), [
+      "a / web  => FAIL no recorded cases in games/a/cases; run: rea-games record a",
+      "b / web  => 1/1 cases identical, 2 inputs, 2 recorded states",
+    ]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a missing port command is named once, not once per case", () => {
   const missing = { cmd: ["rea-games-no-such-command"] };
   const root = makeRoot({ a: { missing } });
