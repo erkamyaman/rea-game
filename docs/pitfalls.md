@@ -76,3 +76,7 @@ begins, `Error: boom` or `AssertionError [ERR_ASSERTION]: ...`, but not past an 
 another program's output against what it really prints.
 
 **Third-party libraries can consume `Math.random()` before the game starts.** jQuery 1.8.3 calls `Math.random()` twice during initialization, which prepended two stray draws to `tape` and shifted every mine placement. Reset the RNG tape after page load finishes so `tape` records only calls from the game itself.
+
+The export scanner missed a regex after `typeof` when a comment came between them. It also mistook the end of a
+Unicode identifier for a keyword. When deciding whether a slash starts a regex, use the last token after skipping
+comments and read the whole identifier.
