@@ -80,3 +80,6 @@ another program's output against what it really prints.
 The export scanner missed a regex after `typeof` when a comment came between them. It also mistook the end of a
 Unicode identifier for a keyword. When deciding whether a slash starts a regex, use the last token after skipping
 comments and read the whole identifier.
+
+**A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
+when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
