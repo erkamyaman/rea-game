@@ -86,7 +86,7 @@ async function main() {
         console.error(e.message);
       }
     }
-    if (hadError) process.exit(1);
+    if (hadError) process.exitCode = 1;
     return;
   }
   if (cmd === "verify") {
