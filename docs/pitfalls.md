@@ -87,3 +87,7 @@ of editing it by hand.
 
 **A valid import can have a trailing comment.** An import line may end with `//` or a same-line `/* … */` comment;
 when inlining it, preserve that trailing text instead of leaving the `import` in the generated plain script.
+
+**Valid JSON is not necessarily valid port output.** Check that a port result is an object with a `trace` array and a
+numeric `tapeUsed` before comparing it; otherwise a malformed result can crash verification or turn into an unreadable
+root-level diff.
