@@ -48,9 +48,30 @@ test("a failing build is that port's failure, and the other ports and games stil
 test("an unknown port is reported for that game, not thrown", () => {
   const root = makeRoot({ a: { web: {} }, b: { web: {} } });
   try {
-    const results = verifyGames(root, ["a", "b"], "nope", quiet);
+    const [single] = verifyGames(root, ["a"], "nope", quiet);
+    assert.match(single.error, /has no port "nope" \(has: web\)/);
+    const all = verifyGames(root, ["a", "b"], "nope", quiet);
+    assert.equal(all.length, 2);
+    assert.ok(all.every((r) => r.skipped && !r.error));
+    const singleAll = verifyGames(root, ["a"], "nope", quiet, { skipMissing: true });
+    assert.equal(singleAll.length, 1);
+    assert.ok(singleAll[0].skipped && !singleAll[0].error);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("when verifying multiple games for one port, games without that port are skipped", () => {
+  const root = makeRoot({ a: { web: {}, bevy: {} }, b: { web: {} } });
+  try {
+    const results = verifyGames(root, ["a", "b"], "bevy", quiet);
     assert.equal(results.length, 2);
-    for (const r of results) assert.match(r.error, /has no port "nope" \(has: web\)/);
+    assert.deepEqual([results[0].passed, results[0].skipped], [1, undefined]);
+    assert.deepEqual([results[1].skipped, results[1].error], [true, undefined]);
+    assert.deepEqual(summaryLines(results), [
+      "a / bevy  => 1/1 cases identical, 2 inputs, 2 recorded states",
+      "b / bevy  => skipped, no bevy port",
+    ]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
