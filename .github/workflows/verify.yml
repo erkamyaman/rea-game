@@ -9,6 +9,8 @@ jobs:
         with: { node-version: 26 }
       - name: Unit tests (lib/, Node only)
         run: npm test
+      - name: Play pages match their web ports
+        run: node scripts/bundle.mjs --check
       - uses: dtolnay/rust-toolchain@stable
       - run: npm install --no-save playwright && npx playwright install --with-deps chromium
       - name: Godot 4.4.1 (checked against the published SHA-512)

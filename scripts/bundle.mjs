@@ -21,7 +21,10 @@ const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export
 // that check, so `"; export"` in a string or `/* one; export two */` in a comment is not code. They are matched in one
 // pass, left to right, with `//` comments (kept as they are) so a quote in a comment or `/*` in a string does not
 // start the wrong one.
-const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=[=(,:?]\s*)\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^\\/[\n])+\/[a-z]*/g;
+// A `/` also starts a regex after `=>` or a keyword after which a value is expected (`return`, `typeof`,
+// `void`, `delete`, `in`, `instanceof`, `case`, `yield`, `await`, `throw`), as a whole word, so `x.return / 2`
+// stays a division.
+const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=(?:[=(,:?]|=>|(?:^|[^.\w$])(?:return|typeof|void|delete|in|instanceof|case|yield|await|throw))\s*)\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^\\/[\n])+\/[a-z]*/g;
 function leftoverExport(body) {
   const blank = body.replace(BLANKABLE, (m) => {
     if (m.startsWith("//")) return m;
@@ -74,8 +77,10 @@ export function leftoverImport(html) {
 }
 
 function main() {
-  fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
+  const check = process.argv.includes("--check");
+  if (!check) fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
   let failed = false;
+  const stale = [];
   for (const g of listGames(root)) {
     const { dir, meta } = loadGame(root, g);
     const play = Object.values(meta.ports).find((p) => p.play)?.play;
@@ -90,16 +95,26 @@ function main() {
       failed = true;
       continue;
     }
-    fs.writeFileSync(path.join(root, page), out);
+    if (check) {
+      const file = path.join(root, page);
+      if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== out) stale.push(page);
+    } else {
+      fs.writeFileSync(path.join(root, page), out);
+    }
     const left = leftoverImport(out);
     if (left) {
       console.error(`${page}: import not inlined, the page will not load: ${left.trim()}`);
       failed = true;
       continue;
     }
-    console.log("wrote " + page, out.length, "bytes");
+    if (!check) console.log("wrote " + page, out.length, "bytes");
   }
-  if (failed) process.exit(1);
+  if (check) {
+    for (const page of stale) console.log("stale " + page);
+    if (stale.length) console.log("run: node scripts/bundle.mjs to rebuild");
+    else if (!failed) console.log("all play pages up to date");
+  }
+  if (failed || stale.length) process.exit(1);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main();
