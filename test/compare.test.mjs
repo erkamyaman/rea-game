@@ -14,7 +14,7 @@ test("key order is ignored", () => {
 });
 
 test("arrays of different lengths", () => {
-  assert.equal(firstDiff([1, 2, 3], [1, 2]), ": length 3 != 2");
+  assert.equal(firstDiff([1, 2, 3], [1, 2]), "(root): length 3 != 2");
   assert.equal(firstDiff({ trace: [] }, { trace: [{}] }), ".trace: length 0 != 1");
 });
 
@@ -30,8 +30,16 @@ test("-0 and 0, and NaN and NaN, are equal", () => {
 });
 
 test("null against an object", () => {
-  assert.equal(firstDiff(null, {}), ": null != {}");
+  assert.equal(firstDiff(null, {}), "(root): null != {}");
   assert.equal(firstDiff({ s: {} }, { s: null }), ".s: {} != null");
+});
+
+test("root values are named and long values are shortened", () => {
+  assert.equal(firstDiff(1, 2), "(root): 1 != 2");
+  const d = firstDiff("a".repeat(300), "b");
+  assert.match(d, /^\(root\): /);
+  assert.ok(d.length < 220, d.length);
+  assert.match(d, /\.\.\. != "b"$/);
 });
 
 test("a key missing on either side", () => {
