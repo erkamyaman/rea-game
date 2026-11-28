@@ -14,9 +14,9 @@ const IMPORT = /^([ \t]*)import\s*\{([^}]*)\}\s*from\s*["'](\.\/[^"']+)["'];?([ 
 // Any import left after inlining would make the plain <script> fail to parse in the browser.
 const LEFTOVER_IMPORT = /^[ \t]*import(?=[\s{*"'])[^\n]*/m;
 // An export left after inlining has no binding to hand back (`export default`, `export *`, `export { … } from`).
-// An export after a `;` on the same line (`const A = 1; export { A };`) is never stripped either; the
-// part before that `;` must hold no `//`, so the word in a line comment does not count.
-const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export\b[^\n]*/m;
+// An export after a `;` or `}` on the same line (`const A = 1; export { A };`, `function f() {}export const Z = 1;`)
+// is never stripped either; the part before that delimiter must hold no `//`, so the word in a line comment does not count.
+const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?[;}][ \t]*export\b[^\n]*/m;
 // String literals, regex literals and block comments are blanked (same length, newlines kept, quotes kept) before
 // that check, so `"; export"` in a string or `/* one; export two */` in a comment is not code. They are matched in one
 // pass, left to right, with `//` comments (kept as they are) so a quote in a comment or `/*` in a string does not
