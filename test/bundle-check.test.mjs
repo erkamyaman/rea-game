@@ -29,8 +29,7 @@ test("bundle with an unknown option names it and exits 2 without writing anythin
     const before = fs.readFileSync(page, "utf8");
     const r = spawnSync(process.execPath, [path.join(dir, "scripts", "bundle.mjs"), "--chek"], { encoding: "utf8" });
     assert.equal(r.status, 2);
-    assert.equal(r.stderr.split("
-")[0], 'bundle.mjs: unknown option "--chek"');
+    assert.equal(r.stderr.split("\n")[0], 'bundle.mjs: unknown option "--chek"');
     assert.equal(r.stdout, "");
     assert.equal(fs.readFileSync(page, "utf8"), before);
   } finally {
