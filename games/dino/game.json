@@ -2,7 +2,8 @@
   "name": "dino",
   "title": "Chrome Dino",
   "original": {
-    "repo": "chromium t-rex runner (extract by @liuwayong)",
+    "repo": "wayou/t-rex-runner",
+    "note": "Chromium's t-rex runner, extracted by @liuwayong",
     "license": "BSD-3-Clause",
     "path": "originals/dino"
   },

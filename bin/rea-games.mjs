@@ -49,10 +49,11 @@ async function main() {
     }
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
+    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
+    const result = await mod.record();
     const cd = path.join(dir, "cases");
     if (fs.existsSync(cd)) for (const f of fs.readdirSync(cd)) if (f.endsWith(".json.gz")) fs.rmSync(path.join(cd, f)); // packed copies would go stale
-    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
-    console.log(`recorded ${g}:`, await mod.record());
+    console.log(`recorded ${g}:`, result);
     return;
   }
   if (cmd === "pack") {
