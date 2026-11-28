@@ -49,6 +49,8 @@ test("a missing build command names the command and for cargo points to rustup",
   const missingCargo = { build: ["cargo", "build"] };
   const missingGeneric = { build: ["rea-games-no-such-builder"] };
   const root = makeRoot({ a: { bevy: missingCargo, other: missingGeneric } });
+  const savedPath = process.env.PATH;
+  process.env.PATH = ""; // ensure cargo cannot be found even on machines with Rust installed
   try {
     const results = verifyGames(root, ["a"], null, quiet);
     const bevy = results.find((r) => r.port === "bevy");
@@ -56,6 +58,7 @@ test("a missing build command names the command and for cargo points to rustup",
     const other = results.find((r) => r.port === "other");
     assert.equal(other.error, "build of a/other failed: rea-games-no-such-builder not found");
   } finally {
+    process.env.PATH = savedPath;
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
