@@ -34,10 +34,16 @@
   #msg.on { display:grid; } #msg h2 { margin:0; font-size:34px; }
   button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 18px; font:inherit; font-weight:700; cursor:pointer; }
   p { color:var(--muted); font-size:14px; }
+  nav.site { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px; font-size:14px; }
+  nav.site a { color:var(--muted); text-decoration:none; padding:4px 0; border-radius:4px; }
+  nav.site a:hover { color:var(--text); text-decoration:underline; }
+  nav.site a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; color:var(--text); }
+  nav.site a.repo { font-size:13px; }
 </style>
 </head>
 <body>
 <main>
+  <nav class="site" aria-label="rea-games"><a href="../index.html">&larr; All games</a><a class="repo" href="https://github.com/erkamyaman/rea-games">rea-games on GitHub</a></nav>
   <header>
     <h1>2048</h1>
     <div class="scores" aria-live="polite" aria-atomic="true"><div class="box"><small>score</small><b id="score">0</b></div><div class="box"><small>best</small><b id="best">0</b></div></div>

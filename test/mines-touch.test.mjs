@@ -17,7 +17,8 @@ const pages = {
 };
 const CELL = 26;
 
-function openPage(html) {
+function openPage(html, { startInFlagMode = false } = {}) {
+  let tick;
   const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("createState"));
   const elements = new Map();
   const el = (id) => {
@@ -40,10 +41,11 @@ function openPage(html) {
   vm.runInNewContext(script, {
     document: { getElementById: el, querySelectorAll: (q) => (q === "[data-diff]" ? [easy] : []) },
     Math,
-    setInterval() {},
+    setInterval(fn) { tick = fn; },
   });
   const click = (x, y, button = 0) => board.listeners.mouseup({ button, clientX: x * CELL + 1, clientY: y * CELL + 1 });
   easy.listeners.click();
+  if (startInFlagMode) el("btn-flag").listeners.click();
   click(15, 10);
   // the first hidden tile in reading order, found by flagging with a right click and taking the flag back
   let hidden = null;
@@ -52,10 +54,28 @@ function openPage(html) {
     click(...at, 2);
     if (el("hud-flags").textContent === "1") { hidden = at; click(...at, 2); }
   }
-  return { el, click, hidden, flags: () => el("hud-flags").textContent, flagButton: el("btn-flag") };
+  return { el, click, hidden, tick, flags: () => el("hud-flags").textContent, flagButton: el("btn-flag") };
 }
 
 for (const [name, read] of Object.entries(pages)) {
+  test(`${name}: Flag mode reveals the first tile on a fresh board and after Reset`, () => {
+    const page = openPage(read(), { startInFlagMode: true });
+    const checkClockStarted = () => {
+      for (let i = 0; i < 20; i++) page.tick();
+      assert.equal(page.el("hud-time").textContent, "2s");
+    };
+    checkClockStarted();
+    page.click(...page.hidden);
+    assert.equal(page.flags(), "1");
+    page.click(...page.hidden);
+    assert.equal(page.flags(), "0");
+
+    page.el("btn-reset").listeners.click();
+    assert.equal(page.el("hud-time").textContent, "0s");
+    page.click(15, 10);
+    checkClockStarted();
+  });
+
   test(`${name}: with the Flag button on, a tap places and removes a flag`, () => {
     const page = openPage(read());
     assert.ok(page.hidden);
