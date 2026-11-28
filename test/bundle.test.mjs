@@ -90,6 +90,11 @@ export const D = 2;
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
 });
 
+test("a destructuring export stops the bundle with the module and the line", () => {
+  const line = "export const { EASY, HARD } = { EASY: 1, HARD: 2 };";
+  assert.throws(bundleModule(`export const A = 1, D = 2;\n${line}\n`), (e) => e.message.includes("x.mjs") && e.message.includes(line), line);
+});
+
 test("a regex after => or return holding a quote does not hide an export", () => {
   // A regex after `=>` holding a quote (#92).
   const arrow = bundleModule(`export const isQuote = (c) => /"/.test(c), SEP = "; export";

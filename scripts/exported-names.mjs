@@ -21,11 +21,11 @@ const SKIP = /^(?:\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*/;
 const WORD = /(?:[\p{ID_Continue}$\u200C\u200D]|\\u(?:[\da-fA-F]{4}|\{[\da-fA-F]+\}))+/uy;
 const REGEX_AFTER_KEYWORD = new Set(["typeof", "void", "delete", "in", "instanceof", "return", "throw", "case", "yield", "await"]);
 
-export function exportedNames(src) {
+export function exportedNames(src, file) {
   const found = [];
   for (const m of src.matchAll(DECL)) found.push([m.index, m[1]]);
   for (const m of src.matchAll(VARS)) {
-    for (const [at, name] of bindings(src, m.index + m[0].length)) found.push([at, name]);
+    for (const [at, name] of bindings(src, m.index + m[0].length, file)) found.push([at, name]);
   }
   for (const m of src.matchAll(EXPORT_LIST)) {
     for (const item of m[1].replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ").split(",").map((x) => x.trim()).filter(Boolean)) {
@@ -36,7 +36,7 @@ export function exportedNames(src) {
   return found.sort((a, b) => a[0] - b[0]).map(([, name]) => name);
 }
 
-function bindings(src, i) {
+function bindings(src, i, file) {
   const out = [];
   let expectName = true;
   let depth = 0;
@@ -48,7 +48,13 @@ function bindings(src, i) {
     if (expectName) {
       while (/\s/.test(src[i])) i++;
       const name = NAME.exec(src.slice(i));
-      if (!name) throw new Error(`exported-names: unsupported export at offset ${i} (destructuring?)`);
+      if (!name) {
+        const lineStart = src.lastIndexOf("\n", i) + 1;
+        const lineEnd = src.indexOf("\n", i);
+        const line = src.slice(lineStart, lineEnd === -1 ? undefined : lineEnd).trim();
+        const prefix = file ? `${file}: ` : "";
+        throw new Error(`${prefix}export not supported by the bundler: ${line}`);
+      }
       out.push([i, name[0]]);
       i += name[0].length;
       last = name[0].at(-1);

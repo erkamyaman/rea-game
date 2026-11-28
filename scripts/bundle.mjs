@@ -45,10 +45,11 @@ function inline(dir, file, out) {
   const id = `__mod${modules.size}`;
   modules.set(full, id);
   const src = fs.readFileSync(full, "utf8");
-  const names = exportedNames(src);
+  const rel = path.relative(root, full);
+  const names = exportedNames(src, rel);
   const body = imports(src, path.dirname(full), out).replace(EXPORT_LIST, "").replace(EXPORT_DECL, "");
   const left = leftoverExport(body);
-  if (left) throw new Error(`${path.relative(root, full)}: export not supported by the bundler: ${left.trim()}`);
+  if (left) throw new Error(`${rel}: export not supported by the bundler: ${left.trim()}`);
   out.push(`const ${id} = (() => {\n${body}\nreturn { ${names.join(", ")} };\n})();\n`);
   return id;
 }
