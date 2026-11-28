@@ -8,7 +8,6 @@ import { scaffold } from "../lib/scaffold.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [cmd, ...rest] = process.argv.slice(2);
-const flag = (n) => { const i = rest.indexOf(n); return i < 0 ? null : rest.splice(i, 2)[1] ?? true; };
 
 const help = `rea-games: reverse-engineer a game's behavior, then check a rebuild against it
 
@@ -27,11 +26,31 @@ async function main() {
     const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
     return console.log(version);
   }
-  if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
+  if (["list", "new", "record", "pack", "verify"].includes(cmd)) {
+    if (rest.includes("--help") || rest.includes("-h")) return console.log(help);
+    if (rest.includes("--version") || rest.includes("-v")) {
+      const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+      return console.log(version);
+    }
+    for (let i = 0; i < rest.length; i++) {
+      if (cmd === "verify" && (rest[i] === "--port" || rest[i].startsWith("--port="))) {
+        if (rest[i] === "--port") i++;
+        continue;
+      }
+      if (rest[i].startsWith("-")) {
+        console.error(`rea-games: unknown option "${rest[i]}"`);
+        process.exit(2);
+      }
+    }
+  }
   if (cmd === "list") {
     for (const g of listGames(root)) {
-      const { meta } = loadGame(root, g);
-      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}`);
+      const { dir, meta } = loadGame(root, g);
+      const cd = path.join(dir, "cases");
+      const cases = fs.existsSync(cd)
+        ? fs.readdirSync(cd).filter((f) => f.endsWith(".json") || f.endsWith(".json.gz")).length
+        : 0;
+      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}  cases: ${cases}`);
     }
     return;
   }
@@ -50,10 +69,11 @@ async function main() {
     }
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
+    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
+    const result = await mod.record();
     const cd = path.join(dir, "cases");
     if (fs.existsSync(cd)) for (const f of fs.readdirSync(cd)) if (f.endsWith(".json.gz")) fs.rmSync(path.join(cd, f)); // packed copies would go stale
-    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
-    console.log(`recorded ${g}:`, await mod.record());
+    console.log(`recorded ${g}:`, result);
     return;
   }
   if (cmd === "pack") {
@@ -63,9 +83,25 @@ async function main() {
     return;
   }
   if (cmd === "verify") {
-    const portOpt = flag("--port");
-    const names = rest[0] === "all" || !rest[0] ? listGames(root) : [rest[0]];
-    const results = verifyGames(root, names, portOpt && portOpt !== true ? portOpt : null);
+    const positional = [];
+    let portName = null;
+    let portMissing = false;
+    for (let i = 0; i < rest.length; i++) {
+      const a = rest[i];
+      if (a === "--port" || a.startsWith("--port=")) {
+        const v = a === "--port" ? rest[++i] : a.slice("--port=".length);
+        if (v && !v.startsWith("-")) portName = v;
+        else portMissing = true;
+      } else positional.push(a);
+    }
+    const game = positional[0] || "all";
+    if (portMissing) {
+      const known = game !== "all" && listGames(root).includes(game) ? loadGame(root, game).meta.ports : null;
+      console.error(`--port needs a value${known ? ` (${game} has: ${Object.keys(known).join(", ")})` : ""}`);
+      process.exit(2);
+    }
+    const names = game === "all" ? listGames(root) : [game];
+    const results = verifyGames(root, names, portName);
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
     process.exit(results.some((r) => r.error || r.failures.length) ? 1 : 0);
   }

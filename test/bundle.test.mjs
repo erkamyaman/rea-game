@@ -60,11 +60,17 @@ test("a local export list is removed from the body and its names are handed back
 });
 
 test("an export the bundler cannot hand back stops the bundle with the module and the line", () => {
-  for (const line of ['export { A } from "./y.mjs";', "export * from \"./y.mjs\";", "export default 1;", "  export const E = 4;"]) {
+  for (const line of ['export { A } from "./y.mjs";', "export * from \"./y.mjs\";", "export default 1;", "  export const E = 4;", "export const { EASY, HARD } = { EASY: 1, HARD: 2 };", "export const [FIRST] = [1];"]) {
     assert.throws(bundleModule(`const A = 1, D = 2;\n${line}\n`), (e) => e.message.includes("x.mjs") && e.message.includes(line.trim()), line);
   }
-  // An export after other code on the same line is refused too (#74), but not the word in a comment.
-  for (const line of ["const B = 1; export { B };", "foo(); export const E = 2;", "/* note */ const B = 1; export { B };"]) {
+  // An export after other code on the same line is refused too (#74, #118), but not the word in a comment.
+  for (const line of [
+    "const B = 1; export { B };",
+    "foo(); export const E = 2;",
+    "/* note */ const B = 1; export { B };",
+    "function f() {}export const Z = 1;",
+    "function g() {} export const W = 2;",
+  ]) {
     assert.throws(bundleModule(`export const A = 1, D = 2;\nfunction foo() {}\n${line}\n`), (e) => e.message.includes("x.mjs") && e.message.includes(line), line);
   }
   const commented = bundleModule("export const A = 1; // the bundler reads each export; export one name or many\nexport const D = 2;\n")();
@@ -88,4 +94,26 @@ export const D = 2;
   assert.match(divided, /^return \{ A, D \};$/m);
   // A refused page must not leave its modules behind: the next page starts again at __mod0.
   assert.match(bundleHtml(html(""), page), /^const \{ COLS, ROWS \} = __mod0;$/m);
+});
+
+test("a regex after => or return holding a quote does not hide an export", () => {
+  // A regex after `=>` holding a quote (#92).
+  const arrow = bundleModule(`export const isQuote = (c) => /"/.test(c), SEP = "; export";
+`)();
+  assert.match(arrow, /^return \{ isQuote, SEP \};$/m);
+  // And after `return` inside a function body.
+  const returned = bundleModule(`export function isQuote(c) {
+  return /"/.test(c) || c === "; export";
+}
+`)();
+  assert.match(returned, /^return \{ isQuote \};$/m);
+  // But a division sharing its line with a string still bundles.
+  const divided = bundleModule(`export const W = total / 2, S = "; export";
+`)();
+  assert.match(divided, /^return \{ W, S \};$/m);
+  // A property or a name that only ends like a keyword is not one, so the slash after it is a division.
+  for (const left of ["o.return", "retur"]) {
+    const out = bundleModule(`export const W = ${left} / 2 + "/", S = "; export";\n`)();
+    assert.match(out, /^return \{ W, S \};$/m, left);
+  }
 });

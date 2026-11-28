@@ -85,6 +85,29 @@ test("a crashed Node port is reported with its error and where it was thrown", (
   }
 });
 
+test("invalid port output is named clearly and does not stop the next game", () => {
+  const root = makeRoot({
+    null: { web: { cmd: ["node", "-e", 'process.stdout.write("null")'] } },
+    notrace: { web: { cmd: ["node", "-e", 'process.stdout.write("{}")'] } },
+    trace: { web: { cmd: ["node", "-e", 'process.stdout.write(JSON.stringify({ trace: [] }))'] } },
+    array: { web: { cmd: ["node", "-e", 'process.stdout.write(JSON.stringify({ trace: {}, tapeUsed: 1 }))'] } },
+    good: { web: {} },
+  });
+  try {
+    const results = verifyGames(root, ["null", "notrace", "trace", "array", "good"], null, quiet);
+    assert.deepEqual(results.map((r) => r.failures[0]?.problem), [
+      'port output is not an object with "trace" and "tapeUsed"',
+      'port output has no "trace" array',
+      'port output has no "tapeUsed" number',
+      'port output has no "trace" array',
+      undefined,
+    ]);
+    assert.deepEqual([results.at(-1).passed, results.at(-1).cases], [1, 1]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a crashed Node port whose message goes on in lines that are not indented keeps its Error line", () => {
   const crash = { cmd: ["node", "-e", "throw new Error('boom\\ndetail')"] };
   const root = makeRoot({ a: { crash } });
@@ -92,6 +115,22 @@ test("a crashed Node port whose message goes on in lines that are not indented k
     const [r] = verifyGames(root, ["a"], null, quiet);
     assert.equal(r.failures.length, 1);
     assert.match(r.failures[0].problem, /^port exited 1: Error: boom \| at \[eval\]:1:\d+$/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a game with no recorded cases fails and says to record", () => {
+  const root = makeRoot({ a: { web: {} }, b: { web: {} } });
+  fs.rmSync(path.join(root, "games", "a", "cases", "one.json"));
+  try {
+    const lines = [];
+    const results = verifyGames(root, ["a", "b"], null, (l) => lines.push(l));
+    assert.ok(lines.includes("  FAIL no recorded cases in games/a/cases; run: rea-games record a"), lines.join("\n"));
+    assert.deepEqual(summaryLines(results), [
+      "a / web  => FAIL no recorded cases in games/a/cases; run: rea-games record a",
+      "b / web  => 1/1 cases identical, 2 inputs, 2 recorded states",
+    ]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -190,4 +229,20 @@ test("crashReason starts at the line where the error begins when its message goe
   assert.equal(crashReason(typed), "TypeError: bad input | at main (runner.mjs:1:1)");
   const logged = "Error: warning first\n    at warn (runner.mjs:1:1)\nOops: boom\ndetail\n    at main (runner.mjs:2:1)\n";
   assert.equal(crashReason(logged), "detail | at main (runner.mjs:2:1)");
+});
+
+test("a game with no cases folder fails the same way as an empty one", () => {
+  const root = makeRoot({ a: { web: {} }, b: { web: {} } });
+  fs.rmSync(path.join(root, "games", "a", "cases"), { recursive: true });
+  try {
+    const lines = [];
+    const results = verifyGames(root, ["a", "b"], null, (l) => lines.push(l));
+    assert.ok(lines.includes("  FAIL no recorded cases in games/a/cases; run: rea-games record a"), lines.join("\n"));
+    assert.deepEqual(summaryLines(results), [
+      "a / web  => FAIL no recorded cases in games/a/cases; run: rea-games record a",
+      "b / web  => 1/1 cases identical, 2 inputs, 2 recorded states",
+    ]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
