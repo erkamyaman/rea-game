@@ -8,7 +8,6 @@ import { scaffold } from "../lib/scaffold.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [cmd, ...rest] = process.argv.slice(2);
-const flag = (n) => { const i = rest.indexOf(n); return i < 0 ? null : rest.splice(i, 2)[1] ?? true; };
 
 const help = `rea-games: reverse-engineer a game's behavior, then check a rebuild against it
 
@@ -50,10 +49,11 @@ async function main() {
     }
     const g = rest[0];
     const { dir, meta } = loadGame(root, g);
+    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
+    const result = await mod.record();
     const cd = path.join(dir, "cases");
     if (fs.existsSync(cd)) for (const f of fs.readdirSync(cd)) if (f.endsWith(".json.gz")) fs.rmSync(path.join(cd, f)); // packed copies would go stale
-    const mod = await import(pathToFileURL(path.join(dir, meta.record)).href);
-    console.log(`recorded ${g}:`, await mod.record());
+    console.log(`recorded ${g}:`, result);
     return;
   }
   if (cmd === "pack") {
@@ -63,9 +63,28 @@ async function main() {
     return;
   }
   if (cmd === "verify") {
-    const portOpt = flag("--port");
-    const names = rest[0] === "all" || !rest[0] ? listGames(root) : [rest[0]];
-    const results = verifyGames(root, names, portOpt && portOpt !== true ? portOpt : null);
+    const positional = [];
+    let portName = null;
+    let portMissing = false;
+    for (let i = 0; i < rest.length; i++) {
+      const a = rest[i];
+      if (a === "--port" || a.startsWith("--port=")) {
+        const v = a === "--port" ? rest[++i] : a.slice("--port=".length);
+        if (v && !v.startsWith("-")) portName = v;
+        else portMissing = true;
+      } else if (a.startsWith("-")) {
+        console.error(`rea-games: unknown option "${a}" for verify`);
+        process.exit(2);
+      } else positional.push(a);
+    }
+    const game = positional[0] || "all";
+    if (portMissing) {
+      const known = game !== "all" && listGames(root).includes(game) ? loadGame(root, game).meta.ports : null;
+      console.error(`--port needs a value${known ? ` (${game} has: ${Object.keys(known).join(", ")})` : ""}`);
+      process.exit(2);
+    }
+    const names = game === "all" ? listGames(root) : [game];
+    const results = verifyGames(root, names, portName);
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
     process.exit(results.some((r) => r.error || r.failures.length) ? 1 : 0);
   }
