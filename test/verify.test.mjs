@@ -85,6 +85,29 @@ test("a crashed Node port is reported with its error and where it was thrown", (
   }
 });
 
+test("invalid port output is named clearly and does not stop the next game", () => {
+  const root = makeRoot({
+    null: { web: { cmd: ["node", "-e", 'process.stdout.write("null")'] } },
+    notrace: { web: { cmd: ["node", "-e", 'process.stdout.write("{}")'] } },
+    trace: { web: { cmd: ["node", "-e", 'process.stdout.write(JSON.stringify({ trace: [] }))'] } },
+    array: { web: { cmd: ["node", "-e", 'process.stdout.write(JSON.stringify({ trace: {}, tapeUsed: 1 }))'] } },
+    good: { web: {} },
+  });
+  try {
+    const results = verifyGames(root, ["null", "notrace", "trace", "array", "good"], null, quiet);
+    assert.deepEqual(results.map((r) => r.failures[0]?.problem), [
+      'port output is not an object with "trace" and "tapeUsed"',
+      'port output has no "trace" array',
+      'port output has no "tapeUsed" number',
+      'port output has no "trace" array',
+      undefined,
+    ]);
+    assert.deepEqual([results.at(-1).passed, results.at(-1).cases], [1, 1]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a crashed Node port whose message goes on in lines that are not indented keeps its Error line", () => {
   const crash = { cmd: ["node", "-e", "throw new Error('boom\\ndetail')"] };
   const root = makeRoot({ a: { crash } });

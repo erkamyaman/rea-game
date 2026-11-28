@@ -48,7 +48,11 @@ function bindings(src, i) {
     if (expectName) {
       while (/\s/.test(src[i])) i++;
       const name = NAME.exec(src.slice(i));
-      if (!name) throw new Error(`exported-names: unsupported export at offset ${i} (destructuring?)`);
+      if (!name) {
+        const err = new Error(`exported-names: unsupported export at offset ${i} (destructuring?)`);
+        err.offset = i;
+        throw err;
+      }
       out.push([i, name[0]]);
       i += name[0].length;
       last = name[0].at(-1);
