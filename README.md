@@ -69,24 +69,26 @@ GAME.md  (what the recording shows)  ──> your port, in any engine  ──> r
 2. **Spec.** `GAME.md` states the rules, the order of operations in a frame, the constants, the quirks (including the original's bugs) and what is not modelled.
 3. **Port.** Any program that reads a case on stdin and prints `{trace, tapeUsed}` is a port: JavaScript, Rust, Godot run headless, C#.
 4. **Verify.** Every recorded state must match exactly, and the port must use exactly the recorded random numbers. The first difference is printed with its path.
+The per-case `ok` lines are left out; the summary at the end is:
+
 
 ```
-$ node bin/rea-games.mjs verify all
-2048 / web          => 19/19 cases identical, 24044 inputs
-2048 / bevy         => 19/19 cases identical, 24044 inputs
-2048 / godot        => 19/19 cases identical, 24044 inputs
-canvas-bird / web   => 30/30 cases identical, 68409 inputs
-canvas-bird / godot => 30/30 cases identical, 68409 inputs
-canvas-bird / bevy  => 30/30 cases identical, 68409 inputs
-dino / web          => 29/29 cases identical, 63000 inputs
-dino / godot        => 29/29 cases identical, 63000 inputs
-dino / bevy         => 29/29 cases identical, 63000 inputs
-blocks / web        => 36/36 cases identical, 104208 inputs
-blocks / godot      => 36/36 cases identical, 104208 inputs
-blocks / bevy       => 36/36 cases identical, 104208 inputs
-bricks / web        => 37/37 cases identical, 209600 inputs
-paddles / web       => 19/19 cases identical, 198300 inputs
-mines / web         => 14/14 cases identical, 628 inputs
+summary
+2048 / web           => 19/19 cases identical, 24044 inputs, 24063 recorded states
+2048 / godot         => 19/19 cases identical, 24044 inputs, 24063 recorded states
+2048 / bevy          => 19/19 cases identical, 24044 inputs, 24063 recorded states
+blocks / web         => 36/36 cases identical, 104208 inputs, 104244 recorded states
+blocks / godot       => 36/36 cases identical, 104208 inputs, 104244 recorded states
+blocks / bevy        => 36/36 cases identical, 104208 inputs, 104244 recorded states
+bricks / web         => 37/37 cases identical, 209600 inputs, 209637 recorded states
+canvas-bird / web    => 30/30 cases identical, 68409 inputs, 68439 recorded states
+canvas-bird / godot  => 30/30 cases identical, 68409 inputs, 68439 recorded states
+canvas-bird / bevy   => 30/30 cases identical, 68409 inputs, 68439 recorded states
+dino / web           => 29/29 cases identical, 63000 inputs, 63029 recorded states
+dino / godot         => 29/29 cases identical, 63000 inputs, 63029 recorded states
+dino / bevy          => 29/29 cases identical, 63000 inputs, 63029 recorded states
+mines / web          => 14/14 cases identical, 628 inputs, 642 recorded states
+paddles / web        => 19/19 cases identical, 198300 inputs, 198319 recorded states
 ```
 
 A check that cannot fail proves nothing, so each port was also broken on purpose (a constant, a collision offset, a timing gate, a spawn-gap factor): `verify` failed each time, for example 5 of 30 Canvas Bird cases pass with the 30 fps gate changed, 3 of 19 for 2048 with the spawn odds changed from 0.9 to 0.8.
