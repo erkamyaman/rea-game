@@ -151,3 +151,24 @@ test("list shows recorded case counts at the end of each line", () => {
   assert.ok(line, r.stdout);
   assert.match(line, /cases: 19$/);
 });
+
+test("unknown options after a command exit 2 with an error, and --version/-v print version", () => {
+  const r1 = run("verify", "2048", "--prot", "web");
+  assert.equal(r1.status, 2);
+  assert.equal(r1.stderr.trim(), 'rea-games: unknown option "--prot"');
+
+  const r2 = run("record", "--dry-run");
+  assert.equal(r2.status, 2);
+  assert.equal(r2.stderr.trim(), 'rea-games: unknown option "--dry-run"');
+
+  const r3 = run("verify", "--prot", "web");
+  assert.equal(r3.status, 2);
+  assert.equal(r3.stderr.trim(), 'rea-games: unknown option "--prot"');
+
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  for (const args of [["list", "--version"], ["verify", "-v"], ["record", "--version"], ["new", "-v"]]) {
+    const r = run(...args);
+    assert.equal(r.status, 0, args.join(" "));
+    assert.equal(r.stdout, `${version}\n`, args.join(" "));
+  }
+});
