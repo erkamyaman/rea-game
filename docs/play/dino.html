@@ -27,13 +27,21 @@
   #duck:active { filter:brightness(.88); }
   p.keys { margin:12px 2px 0; color:var(--muted); font-size:14px; }
   kbd { background:var(--bg); border-radius:5px; padding:1px 7px; font:inherit; font-weight:600; color:var(--text); }
+  nav.site { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px; font-size:14px; }
+  nav.site a { color:var(--muted); text-decoration:none; padding:4px 0; border-radius:4px; }
+  nav.site a:hover { color:var(--text); text-decoration:underline; }
+  nav.site a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; color:var(--text); }
+  nav.site a.repo { font-size:13px; }
+  .sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>
 </head>
 <body>
 <main>
+  <nav class="site" aria-label="rea-games"><a href="../index.html">&larr; All games</a><a class="repo" href="https://github.com/erkamyaman/rea-games">rea-games on GitHub</a></nav>
   <header><h1>Dino</h1><span>own art · rules rebuilt from the recording</span></header>
   <div id="stage">
     <div id="wrap"><canvas id="c" width="600" height="150" role="img" aria-label="Dino game"></canvas></div>
+    <p id="live" class="sr-only" aria-live="polite" aria-atomic="true"></p>
     <button id="duck" type="button">HOLD TO DUCK</button>
   </div>
   <p class="keys"><kbd>Space</kbd> / <kbd>&uarr;</kbd> or tap: jump (hold for a higher jump) &middot; <kbd>&darr;</kbd>: duck, or drop faster in the air &middot; after a crash: <kbd>Space</kbd> / tap / <kbd>Enter</kbd> to run again.</p>
@@ -526,6 +534,7 @@ const { Dino } = __mod0;
   let introT = 0, queue = [], acc = 0, last = null, ticks = 0, crashTicks = 0;
   const clouds = [{ x: 380, y: 40 }, { x: 120, y: 62 }];
   let scoreOf = () => { const d = Math.ceil(game.distanceRan); return d ? Math.round(d * 0.025) : 0; };
+  const set = (id, v) => { const el = document.getElementById(id), s = String(v); if (el.textContent !== s) el.textContent = s; };
 
   // ---- input
   const push = (k) => queue.push(k);
@@ -554,12 +563,16 @@ const { Dino } = __mod0;
     inp.dt = dt;
     if (game.playingIntro) { introT += dt; if (introT >= INTRO_MS) { inp.animEnd = true; introT = 0; } } else introT = 0;
     const wasCrashed = game.crashed;
+    const wasPlaying = game.playing;
     game.step(inp);
     ticks++;
     crashTicks = game.crashed ? crashTicks + 1 : 0;
     if (!wasCrashed && game.crashed) {
       const s = scoreOf();
       if (s > best) { best = s; try { localStorage.setItem("rea-dino-best", String(best)); } catch (e) { /* ignore */ } }
+      set("live", "Game over, " + s + " points, best " + best);
+    } else if (!wasPlaying && game.playing && !game.crashed) {
+      set("live", "Running");
     }
     // drifting clouds (looks only)
     const v = game.activated && !game.crashed ? game.currentSpeed * 0.2 : 0;
