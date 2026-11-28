@@ -1,6 +1,6 @@
 # The GAME.md format
 
-A `GAME.md` is the behaviour spec for one game, at `games/<game>/GAME.md`. It states the rules, the order of operations in a frame, the constants, the quirks, and what is not modelled. It is written from the recording — from what the original *does* — not from reading its source: the port is written from `GAME.md`, and `verify` checks the port against the recorded cases. A new `GAME.md` starts from the scaffold (`node bin/rea-games.mjs new <game>`), which uses the headings below.
+A `GAME.md` is the behaviour spec for one game, at `games/<game>/GAME.md`. It states the rules, the order of operations in a frame, the constants, the quirks, and what is not modelled. It is written from the recording (from what the original *does*), not from reading its source: the port is written from `GAME.md`, and `verify` checks the port against the recorded cases. A new `GAME.md` starts from the scaffold (`node bin/rea-games.mjs new <game>`), which uses the headings below.
 
 ## Required sections, in order
 
@@ -12,7 +12,7 @@ Keep these sections in this order, with these headings. Each one says what goes 
 
 ### What was recorded
 
-How the original was run and recorded — the harness, the inputs, what one case is — and how many cases there are. Example: [games/blocks/GAME.md](../games/blocks/GAME.md) ("What was recorded and how"); [games/dino/GAME.md](../games/dino/GAME.md) puts the harness in section 1, "How the original is run (the harness)".
+How the original was run and recorded (the harness, the inputs, what one case is) and how many cases there are. Example: [games/blocks/GAME.md](../games/blocks/GAME.md) ("What was recorded and how"); [games/dino/GAME.md](../games/dino/GAME.md) puts the harness in section 1, "How the original is run (the harness)".
 
 ### State that is compared
 
@@ -28,7 +28,7 @@ Required when the game draws random numbers; omit it when it does not. Say how d
 
 ### Order of operations in one step
 
-The rules, as the ordered steps inside one step (one frame), with the formulas. Per-entity detail — the dino, obstacles, collision — goes in subsections under it. Example: [games/blocks/GAME.md](../games/blocks/GAME.md) ("Order of operations in one rendered frame"); [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md).
+The rules, as the ordered steps inside one step (one frame), with the formulas. Per-entity detail (the dino, obstacles, collision) goes in subsections under it. Example: [games/blocks/GAME.md](../games/blocks/GAME.md) ("Order of operations in one rendered frame"); [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md).
 
 ### Quirks
 
@@ -40,7 +40,7 @@ Everything left out, each with why it cannot change the trace. Example: [games/c
 
 ### Coverage
 
-What the cases cover, read off the traces — not from the port. Example: [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md) ("Coverage of the recording"); [games/blocks/GAME.md](../games/blocks/GAME.md) ("Coverage of the recordings").
+What the cases cover, read off the traces, not from the port. Example: [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md) ("Coverage of the recording"); [games/blocks/GAME.md](../games/blocks/GAME.md) ("Coverage of the recordings").
 
 ### Not covered
 
@@ -48,8 +48,8 @@ The honest list of what the recordings do not cover. Example: [games/2048/GAME.m
 
 ## Optional sections
 
-A game may add a section where the required ones do not fit — for example [games/blocks/GAME.md](../games/blocks/GAME.md) adds "What is traced but does not affect play" after the order of operations — but the required sections keep the order above, and no required section is renamed.
+A game may add a section where the required ones do not fit (for example [games/blocks/GAME.md](../games/blocks/GAME.md) adds "What is traced but does not affect play" after the order of operations), but the required sections keep the order above, and no required section is renamed.
 
 ## Where this comes from
 
-These headings are the common shape of the four specs the repo ships: [games/2048/GAME.md](../games/2048/GAME.md), [games/dino/GAME.md](../games/dino/GAME.md), [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md) and [games/blocks/GAME.md](../games/blocks/GAME.md). They do not all follow it yet — 2048 has no Constants or order-of-operations section, and dino numbers its sections 1–13. Those files are not rewritten here; a follow-up can align them.
+These headings are the common shape of the first four specs the repo shipped: [games/2048/GAME.md](../games/2048/GAME.md), [games/dino/GAME.md](../games/dino/GAME.md), [games/canvas-bird/GAME.md](../games/canvas-bird/GAME.md) and [games/blocks/GAME.md](../games/blocks/GAME.md). They do not all follow it yet: 2048 has no Constants or order-of-operations section, and dino numbers its sections 1 to 13. Those files are not rewritten here; a follow-up can align them.
