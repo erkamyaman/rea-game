@@ -143,3 +143,11 @@ test("verify reads --port=<name> like --port <name>", () => {
   assert.match(r.stdout, /^2048 \/ nope$/m);
   assert.match(r.stdout, /FAIL 2048 has no port "nope"/);
 });
+
+test("list shows recorded case counts at the end of each line", () => {
+  const r = run("list");
+  assert.equal(r.status, 0);
+  const line = r.stdout.split("\n").find((l) => l.startsWith("2048 "));
+  assert.ok(line, r.stdout);
+  assert.match(line, /cases: 19$/);
+});

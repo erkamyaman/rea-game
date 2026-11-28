@@ -29,8 +29,12 @@ async function main() {
   if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
   if (cmd === "list") {
     for (const g of listGames(root)) {
-      const { meta } = loadGame(root, g);
-      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}`);
+      const { dir, meta } = loadGame(root, g);
+      const cd = path.join(dir, "cases");
+      const cases = fs.existsSync(cd)
+        ? fs.readdirSync(cd).filter((f) => f.endsWith(".json") || f.endsWith(".json.gz")).length
+        : 0;
+      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}  cases: ${cases}`);
     }
     return;
   }
