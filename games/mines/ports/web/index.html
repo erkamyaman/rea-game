@@ -141,10 +141,16 @@
     }
     .status-text.won { color: var(--win); }
     .status-text.lost { color: var(--danger); }
+    nav.site { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px; font-size:14px; }
+    nav.site a { color:var(--muted); text-decoration:none; padding:4px 0; border-radius:4px; }
+    nav.site a:hover { color:var(--text); text-decoration:underline; }
+    nav.site a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; color:var(--text); }
+    nav.site a.repo { font-size:13px; }
   </style>
 </head>
 <body>
   <div class="shell">
+    <nav class="site" aria-label="rea-games"><a href="../index.html">&larr; All games</a><a class="repo" href="https://github.com/erkamyaman/rea-games">rea-games on GitHub</a></nav>
     <div class="header">
       <h1>Mines</h1>
       <div class="hud">
@@ -341,7 +347,7 @@ import { COLS, ROWS, createState, step, snapshot } from "./mines.mjs";
       const rect = canvas.getBoundingClientRect();
       const x = Math.floor(((e.clientX - rect.left) * canvas.width) / rect.width / CELL);
       const y = Math.floor(((e.clientY - rect.top) * canvas.height) / rect.height / CELL);
-      const button = flagMode || e.button === 2 ? "right" : "left";
+      const button = e.button === 2 || (flagMode && !state.firstClick) ? "right" : "left";
       step(state, { dt: 0, action: { type: "click", button, x, y } }, Math.random);
       render();
     });
