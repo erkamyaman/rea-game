@@ -93,3 +93,10 @@ numeric `tapeUsed` before comparing it; otherwise a malformed result can crash v
 root-level diff.
 
 **A flag with no value came back as `true`, and the code read that as "no port".** `--port` at the end of the command line made the option parser return `true`, so `verify` ran every port, including the slow Bevy build. A value is now required (`--port web` or `--port=web`); a missing one, or one followed by another flag, exits 2, and unknown flags after `verify` are rejected instead of being taken as a game name.
+
+**Mines needs a reveal before flagging is possible.** When Flag mode is active on a fresh or reset board, send
+the first tap as a reveal. The timer starts on that reveal, and subsequent taps can toggle flags.
+
+**A missing folder is not an empty folder to `readdirSync`.** Reading a directory that does not exist throws
+a raw ENOENT; check `existsSync` first when "not there yet" is an expected state, so the caller can print its
+readable message instead of a file-system error.

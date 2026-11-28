@@ -143,3 +143,42 @@ test("verify reads --port=<name> like --port <name>", () => {
   assert.match(r.stdout, /^2048 \/ nope$/m);
   assert.match(r.stdout, /FAIL 2048 has no port "nope"/);
 });
+
+test("list shows recorded case counts at the end of each line", () => {
+  const r = run("list");
+  assert.equal(r.status, 0);
+  const line = r.stdout.split("\n").find((l) => l.startsWith("2048 "));
+  assert.ok(line, r.stdout);
+  assert.match(line, /cases: 19$/);
+});
+
+test("unknown options after a command exit 2 with an error, and --version/-v print version", () => {
+  const r1 = run("verify", "2048", "--prot", "web");
+  assert.equal(r1.status, 2);
+  assert.equal(r1.stderr.trim(), 'rea-games: unknown option "--prot"');
+
+  const r2 = run("record", "--dry-run");
+  assert.equal(r2.status, 2);
+  assert.equal(r2.stderr.trim(), 'rea-games: unknown option "--dry-run"');
+
+  const r3 = run("verify", "--prot", "web");
+  assert.equal(r3.status, 2);
+  assert.equal(r3.stderr.trim(), 'rea-games: unknown option "--prot"');
+
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  for (const args of [["list", "--version"], ["verify", "-v"], ["record", "--version"], ["new", "-v"]]) {
+    const r = run(...args);
+    assert.equal(r.status, 0, args.join(" "));
+    assert.equal(r.stdout, `${version}\n`, args.join(" "));
+  }
+});
+
+test("verify all --port skips games without that port, but fails when no game has it", () => {
+  const none = run("verify", "all", "--port", "nope");
+  assert.equal(none.status, 1);
+  assert.match(none.stdout, /^  2048 \/ nope +=> skipped, no nope port$/m);
+  assert.equal(none.stderr.trim(), 'no game has a "nope" port');
+  const named = run("verify", "bricks", "--port", "bevy");
+  assert.equal(named.status, 1);
+  assert.match(named.stdout, /FAIL bricks has no port "bevy" \(has: web\)/);
+});

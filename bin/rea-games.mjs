@@ -26,11 +26,31 @@ async function main() {
     const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
     return console.log(version);
   }
-  if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
+  if (["list", "new", "record", "pack", "verify"].includes(cmd)) {
+    if (rest.includes("--help") || rest.includes("-h")) return console.log(help);
+    if (rest.includes("--version") || rest.includes("-v")) {
+      const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+      return console.log(version);
+    }
+    for (let i = 0; i < rest.length; i++) {
+      if (cmd === "verify" && (rest[i] === "--port" || rest[i].startsWith("--port="))) {
+        if (rest[i] === "--port") i++;
+        continue;
+      }
+      if (rest[i].startsWith("-")) {
+        console.error(`rea-games: unknown option "${rest[i]}"`);
+        process.exit(2);
+      }
+    }
+  }
   if (cmd === "list") {
     for (const g of listGames(root)) {
-      const { meta } = loadGame(root, g);
-      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}`);
+      const { dir, meta } = loadGame(root, g);
+      const cd = path.join(dir, "cases");
+      const cases = fs.existsSync(cd)
+        ? fs.readdirSync(cd).filter((f) => f.endsWith(".json") || f.endsWith(".json.gz")).length
+        : 0;
+      console.log(`${g.padEnd(12)} original: ${meta.original.repo} (${meta.original.license})  ports: ${Object.keys(meta.ports).join(", ")}  cases: ${cases}`);
     }
     return;
   }
@@ -72,9 +92,6 @@ async function main() {
         const v = a === "--port" ? rest[++i] : a.slice("--port=".length);
         if (v && !v.startsWith("-")) portName = v;
         else portMissing = true;
-      } else if (a.startsWith("-")) {
-        console.error(`rea-games: unknown option "${a}" for verify`);
-        process.exit(2);
       } else positional.push(a);
     }
     const game = positional[0] || "all";
@@ -84,9 +101,10 @@ async function main() {
       process.exit(2);
     }
     const names = game === "all" ? listGames(root) : [game];
-    const results = verifyGames(root, names, portName);
+    const results = verifyGames(root, names, portName, console.log, { skipMissing: game === "all" });
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
-    process.exit(results.some((r) => r.error || r.failures.length) ? 1 : 0);
+    if (results.length && results.every((r) => r.skipped)) console.error(`no game has a "${portName}" port`);
+    process.exit(results.some((r) => r.error || r.failures.length) || results.every((r) => r.skipped) ? 1 : 0);
   }
   console.error(`rea-games: unknown command "${cmd}"\n`);
   console.error(help);
