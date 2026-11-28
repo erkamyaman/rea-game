@@ -21,7 +21,16 @@ const LEFTOVER_EXPORT = /^[ \t]*export\b[^\n]*|^(?:(?!\/\/)[^\n])*?;[ \t]*export
 // that check, so `"; export"` in a string or `/* one; export two */` in a comment is not code. They are matched in one
 // pass, left to right, with `//` comments (kept as they are) so a quote in a comment or `/*` in a string does not
 // start the wrong one.
-const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=[=(,:?]\s*)\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^\\/[\n])+\/[a-z]*/g;
+// A `/` also starts a regex after `=>` or a keyword after which a value is expected (`return`, `typeof`,
+// `void`, `delete`, `in`, `instanceof`, `case`, `yield`, `await`, `throw`), as a whole word, so `x.return / 2`
+// stays a division.
+const BLANKABLE = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|(?<=(?:[=(,:?]|=>|(?:^|[^.\w$])(?:return|typeof|void|delete|in|instanceof|case|yield|await|throw))\s*)\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^\\/[\n])+\/[a-z]*/g;
+function lineAt(text, at) {
+  const start = text.lastIndexOf("\n", at) + 1;
+  const end = text.indexOf("\n", at);
+  return text.slice(start, end === -1 ? undefined : end);
+}
+
 function leftoverExport(body) {
   const blank = body.replace(BLANKABLE, (m) => {
     if (m.startsWith("//")) return m;
@@ -30,9 +39,7 @@ function leftoverExport(body) {
   });
   const at = blank.match(LEFTOVER_EXPORT)?.index;
   if (at === undefined) return undefined;
-  const start = body.lastIndexOf("\n", at) + 1;
-  const end = body.indexOf("\n", at);
-  return body.slice(start, end === -1 ? undefined : end);
+  return lineAt(body, at);
 }
 // Each module runs in its own function scope and hands back its named exports, so two files may
 // both declare the same top-level name (the page and its logic module often both define W and H).
@@ -42,7 +49,15 @@ function inline(dir, file, out) {
   const id = `__mod${modules.size}`;
   modules.set(full, id);
   const src = fs.readFileSync(full, "utf8");
-  const names = exportedNames(src);
+  let names;
+  try {
+    names = exportedNames(src);
+  } catch (e) {
+    if (typeof e?.offset === "number") {
+      throw new Error(`${path.relative(root, full)}: export not supported by the bundler: ${lineAt(src, e.offset).trim()}`, { cause: e });
+    }
+    throw e;
+  }
   const body = imports(src, path.dirname(full), out).replace(EXPORT_LIST, "").replace(EXPORT_DECL, "");
   const left = leftoverExport(body);
   if (left) throw new Error(`${path.relative(root, full)}: export not supported by the bundler: ${left.trim()}`);
@@ -74,8 +89,10 @@ export function leftoverImport(html) {
 }
 
 function main() {
-  fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
+  const check = process.argv.includes("--check");
+  if (!check) fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
   let failed = false;
+  const stale = [];
   for (const g of listGames(root)) {
     const { dir, meta } = loadGame(root, g);
     const play = Object.values(meta.ports).find((p) => p.play)?.play;
@@ -90,16 +107,26 @@ function main() {
       failed = true;
       continue;
     }
-    fs.writeFileSync(path.join(root, page), out);
+    if (check) {
+      const file = path.join(root, page);
+      if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== out) stale.push(page);
+    } else {
+      fs.writeFileSync(path.join(root, page), out);
+    }
     const left = leftoverImport(out);
     if (left) {
       console.error(`${page}: import not inlined, the page will not load: ${left.trim()}`);
       failed = true;
       continue;
     }
-    console.log("wrote " + page, out.length, "bytes");
+    if (!check) console.log("wrote " + page, out.length, "bytes");
   }
-  if (failed) process.exit(1);
+  if (check) {
+    for (const page of stale) console.log("stale " + page);
+    if (stale.length) console.log("run: node scripts/bundle.mjs to rebuild");
+    else if (!failed) console.log("all play pages up to date");
+  }
+  if (failed || stale.length) process.exit(1);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main();

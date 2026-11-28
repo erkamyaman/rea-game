@@ -34,10 +34,7 @@ jobs:
         run: test -f "docs/releases/$GITHUB_REF_NAME.md"
 
       - name: Verify the web ports
-        run: |
-          node bin/rea-games.mjs verify 2048 --port web
-          node bin/rea-games.mjs verify dino --port web
-          node bin/rea-games.mjs verify canvas-bird --port web
+        run: node bin/rea-games.mjs verify all --port web
 
       # Trusted publishing: npm trusts this workflow through OpenID Connect, so
       # no token is stored anywhere. It needs npm 11.5.1 or newer.
