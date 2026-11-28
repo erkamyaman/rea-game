@@ -4,20 +4,20 @@ The most useful contribution is **a new game that passes its own recording**, or
 
 ## Add a game
 
-Work in this order — each step names the file you touch and the command to run. The skill is the whole workflow: read `skills/rea-games/SKILL.md` first, and write the behaviour spec in the `GAME.md` format (see `games/2048/GAME.md` for a shipped example).
+Work in this order. Each step names the file you touch and the command to run. The skill is the whole workflow: read `skills/rea-games/SKILL.md` first, and write the behaviour spec in the `GAME.md` format (see `games/2048/GAME.md` for a shipped example).
 
-1. Open (or pick up) the request issue, created from `.github/ISSUE_TEMPLATE/new-game.md` — it already carries the `game` label. Say which licence the original is under in the issue first. Pick a game whose source you may run and redistribute (MIT, BSD, Apache, public domain). No commercial games, no trademarked names, no art or sound from the original.
+1. Open (or pick up) the request issue, created from `.github/ISSUE_TEMPLATE/new-game.md`; it already carries the `game` label. Say which licence the original is under in the issue first. Pick a game whose source you may run and redistribute (MIT, BSD, Apache, public domain). No commercial games, no trademarked names, no art or sound from the original.
 2. Scaffold it: `node bin/rea-games.mjs new <game>`. This creates `games/<game>/game.json`, `games/<game>/record.mjs`, `games/<game>/GAME.md`, `games/<game>/ports/web/run.mjs`, `games/<game>/ports/web/index.html`, and `games/<game>/cases/`.
 3. Vendor the original unmodified under `originals/<game>` with its licence, and add a line to `NOTICE`.
-4. Fill in `games/<game>/game.json` — see `game.json` port keys below. Its `original` entry records the source repo, licence and path; its `record` entry records how to record it.
+4. Fill in `games/<game>/game.json` (see `game.json` port keys below). Its `original` entry records the source repo, licence and path; its `record` entry records how to record it.
 5. Record it (`record.mjs`), write `GAME.md`, write the port, and make `node bin/rea-games.mjs verify <game>` print every case identical.
 6. Break the port on purpose in at least three ways and show `verify` fails each time (put the numbers in the PR).
 7. `node bin/rea-games.mjs pack <game>` before committing; cases are stored gzipped.
-8. Make the side-by-side GIF: copy `scripts/demo-blocks.mjs` to `scripts/demo-<game>.mjs`, adapt it to the new game, and run `node scripts/demo-<game>.mjs` — it renders the original next to the rebuild and writes `docs/assets/<game>.gif` (composed by `scripts/compose.py`).
+8. Make the side-by-side GIF: copy `scripts/demo-blocks.mjs` to `scripts/demo-<game>.mjs`, adapt it to the new game, and run `node scripts/demo-<game>.mjs`. It renders the original next to the rebuild and writes `docs/assets/<game>.gif` (composed by `scripts/compose.py`).
 9. Bundle the play page: `node scripts/bundle.mjs` produces `docs/play/<game>.html` from the port's `play` page. Run `node scripts/bundle.mjs --check` to confirm nothing is stale.
 10. Add a card to `docs/index.html`: copy a shipped `<a class="game" ...>` card. It links to `play/<game>.html`, shows `assets/<game>.gif` with alt text, and carries the title, the `verify` numbers (`.proof`), the original repo and licence (`.orig`), and a "Play the rebuild" link (`.play`).
 11. Update `README.md`: add a row to "Play the rebuilds" (with the Play link to `https://erkamyaman.github.io/rea-games/play/<game>.html`), a row to "Engines" if the game adds a port, bump the `games-N` badge to the new count of directories under `games/`, and refresh the sample `verify all` output if it lists games.
-12. Add the game's `verify` numbers to `docs/STATUS.md` — a row in the Verified table, or a per-game section like the one Blocks has where the table does not fit.
+12. Add the game's `verify` numbers to `docs/STATUS.md`: a row in the Verified table, or a per-game section like the one Blocks has where the table does not fit.
 
 ### `game.json` port keys
 
@@ -43,7 +43,7 @@ A port that needs a build step (`games/2048/game.json`, `bevy`):
 
 ### Before you open the PR
 
-- `npm test` and `node bin/rea-games.mjs verify all` pass — report numbers as `verify` printed them.
+- `npm test` and `node bin/rea-games.mjs verify all` pass; report numbers as `verify` printed them.
 - `node scripts/bundle.mjs --check` is clean, so the play page is built.
 - The GIF in `docs/assets/<game>.gif` matches the new landing card.
 - The landing card in `docs/index.html`, the README numbers (tables, badge, sample output) and the `docs/STATUS.md` row are all updated.
