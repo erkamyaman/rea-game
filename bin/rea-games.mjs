@@ -28,6 +28,19 @@ async function main() {
     return console.log(version);
   }
   if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--help") || rest.includes("-h"))) return console.log(help);
+  if (["list", "new", "record", "pack", "verify"].includes(cmd) && (rest.includes("--version") || rest.includes("-v"))) {
+    const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+    return console.log(version);
+  }
+  const known = new Set(["--port", "--help", "-h", "--version", "-v"]);
+  for (let i = 0; i < rest.length; i++) {
+    const it = rest[i];
+    if (it.startsWith("-") && !known.has(it)) {
+      console.error(`rea-games: unknown option "${it}"`);
+      process.exit(2);
+    }
+    if (it === "--port") i++;
+  }
   if (cmd === "list") {
     for (const g of listGames(root)) {
       const { meta } = loadGame(root, g);

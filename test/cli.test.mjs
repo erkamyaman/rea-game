@@ -60,6 +60,25 @@ test("--help and -h after a command print the help and exit 0", () => {
   }
 });
 
+test("unknown option after a command exits 2 and names the option", () => {
+  const r1 = run("verify", "2048", "--prot", "web");
+  assert.equal(r1.status, 2);
+  assert.match(r1.stderr, /^rea-games: unknown option "--prot"$/m);
+
+  const r2 = run("record", "--dry-run");
+  assert.equal(r2.status, 2);
+  assert.match(r2.stderr, /^rea-games: unknown option "--dry-run"$/m);
+});
+
+test("--version and -v after a command print the version and exit 0", () => {
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  for (const args of [["verify", "--version"], ["verify", "-v"], ["record", "--version"], ["new", "-v"]]) {
+    const r = run(...args);
+    assert.equal(r.status, 0, args.join(" "));
+    assert.equal(r.stdout, `${version}\n`, args.join(" "));
+  }
+});
+
 test("new with no name prints its usage and exits 2", () => {
   const r = run("new");
   assert.equal(r.status, 2);
