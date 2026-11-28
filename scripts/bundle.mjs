@@ -89,6 +89,11 @@ export function leftoverImport(html) {
 }
 
 function main() {
+  const extra = process.argv.slice(2).filter((a) => a !== "--check");
+  if (extra.length) {
+    console.error(`bundle.mjs: unknown option "${extra[0]}"`);
+    process.exit(2);
+  }
   const check = process.argv.includes("--check");
   if (!check) fs.mkdirSync(path.join(root, "docs/play"), { recursive: true });
   let failed = false;
