@@ -577,7 +577,7 @@ const { COLS, ROWS, createState, step, snapshot } = __mod0;
       const rect = canvas.getBoundingClientRect();
       const x = Math.floor(((e.clientX - rect.left) * canvas.width) / rect.width / CELL);
       const y = Math.floor(((e.clientY - rect.top) * canvas.height) / rect.height / CELL);
-      const button = flagMode || e.button === 2 ? "right" : "left";
+      const button = e.button === 2 || (flagMode && !state.firstClick) ? "right" : "left";
       step(state, { dt: 0, action: { type: "click", button, x, y } }, Math.random);
       render();
     });
