@@ -17,9 +17,15 @@
   canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer; }
   p { margin: 0; color: var(--muted); font-size: 14px; text-align: center; }
   b { color: var(--fg); font-weight: 600; }
+  nav.site { width: min(100%, 720px); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
+  nav.site a { color: var(--muted); text-decoration: none; padding: 4px 0; border-radius: 4px; }
+  nav.site a:hover { color: var(--fg); text-decoration: underline; }
+  nav.site a:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; color: var(--fg); }
+  nav.site a.repo { font-size: 13px; }
 </style>
 </head>
 <body>
+<nav class="site" aria-label="rea-games"><a href="../index.html">&larr; All games</a><a class="repo" href="https://github.com/erkamyaman/rea-games">rea-games on GitHub</a></nav>
 <div id="wrap"><canvas id="c" width="1280" height="960" role="img" aria-label="Canvas Bird game"></canvas></div>
 <p><b>Tap</b>, click or press <b>Space</b> to flap. Pass the pipes. <span aria-live="polite" aria-atomic="true">Best: <b id="best">0</b></span></p>
 <script>
@@ -208,7 +214,7 @@ function beep(freq, len, type = "square", gain = 0.05) {
 // ---- input
 function tap(e) { if (e) e.preventDefault(); clickPending = true; }
 cv.addEventListener("pointerdown", tap);
-addEventListener("keydown", (e) => { if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter") { if (!e.repeat) tap(e); } });
+addEventListener("keydown", (e) => { if (e.code === "Space" || e.code === "ArrowUp" || (e.code === "Enter" && e.target.tagName !== "A")) { if (!e.repeat) tap(e); } });
 
 // ---- own art, all drawn here
 const sky = ctx.createLinearGradient(0, 0, 0, H);

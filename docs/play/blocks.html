@@ -38,10 +38,16 @@
   @media (pointer: coarse) { #pad { display:grid; } }
   p.keys { margin:12px 2px 0; color:var(--muted); font-size:14px; }
   kbd { background:var(--panel); border-radius:5px; padding:1px 7px; font:inherit; font-weight:600; color:var(--text); }
+  nav.site { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px; font-size:14px; }
+  nav.site a { color:var(--muted); text-decoration:none; padding:4px 0; border-radius:4px; }
+  nav.site a:hover { color:var(--text); text-decoration:underline; }
+  nav.site a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; color:var(--text); }
+  nav.site a.repo { font-size:13px; }
 </style>
 </head>
 <body>
 <main>
+  <nav class="site" aria-label="rea-games"><a href="../index.html">&larr; All games</a><a class="repo" href="https://github.com/erkamyaman/rea-games">rea-games on GitHub</a></nav>
   <header><h1>Blocks</h1><span>own art &middot; rules rebuilt from the recording</span></header>
   <div id="stage">
     <div id="court">
