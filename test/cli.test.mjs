@@ -172,3 +172,13 @@ test("unknown options after a command exit 2 with an error, and --version/-v pri
     assert.equal(r.stdout, `${version}\n`, args.join(" "));
   }
 });
+
+test("verify all --port skips games without that port, but fails when no game has it", () => {
+  const none = run("verify", "all", "--port", "nope");
+  assert.equal(none.status, 1);
+  assert.match(none.stdout, /^  2048 \/ nope +=> skipped, no nope port$/m);
+  assert.equal(none.stderr.trim(), 'no game has a "nope" port');
+  const named = run("verify", "bricks", "--port", "bevy");
+  assert.equal(named.status, 1);
+  assert.match(named.stdout, /FAIL bricks has no port "bevy" \(has: web\)/);
+});

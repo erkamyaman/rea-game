@@ -101,9 +101,10 @@ async function main() {
       process.exit(2);
     }
     const names = game === "all" ? listGames(root) : [game];
-    const results = verifyGames(root, names, portName);
+    const results = verifyGames(root, names, portName, console.log, { skipMissing: game === "all" });
     if (results.length > 1) console.log(["", "summary", ...summaryLines(results).map((l) => "  " + l)].join("\n"));
-    process.exit(results.some((r) => r.error || r.failures.length) ? 1 : 0);
+    if (results.length && results.every((r) => r.skipped)) console.error(`no game has a "${portName}" port`);
+    process.exit(results.some((r) => r.error || r.failures.length) || results.every((r) => r.skipped) ? 1 : 0);
   }
   console.error(`rea-games: unknown command "${cmd}"\n`);
   console.error(help);

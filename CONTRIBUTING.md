@@ -4,7 +4,7 @@ The most useful contribution is **a new game that passes its own recording**, or
 
 ## Add a game
 
-Work in this order. Each step names the file you touch and the command to run. The skill is the whole workflow: read `skills/rea-games/SKILL.md` first, and write the behaviour spec in the `GAME.md` format (see `games/2048/GAME.md` for a shipped example).
+Work in this order. Each step names the file you touch and the command to run. The skill is the whole workflow: read `skills/rea-games/SKILL.md` first, and write the behaviour spec in the [`GAME.md` format](docs/game-md.md).
 
 1. Open (or pick up) the request issue, created from `.github/ISSUE_TEMPLATE/new-game.md`; it already carries the `game` label. Say which licence the original is under in the issue first. Pick a game whose source you may run and redistribute (MIT, BSD, Apache, public domain). No commercial games, no trademarked names, no art or sound from the original.
 2. Scaffold it: `node bin/rea-games.mjs new <game>`. This creates `games/<game>/game.json`, `games/<game>/record.mjs`, `games/<game>/GAME.md`, `games/<game>/ports/web/run.mjs`, `games/<game>/ports/web/index.html`, and `games/<game>/cases/`.
@@ -51,6 +51,7 @@ A port that needs a build step (`games/2048/game.json`, `bevy`):
 ## Add an engine port
 
 A port is any program that reads a case on stdin and prints `{trace, tapeUsed}` (see `games/2048/ports/godot/runner.gd` and `games/2048/ports/bevy/runner/src/main.rs`). Add it to the game's `game.json`. It counts as verified only when `verify` passes it.
+Write the port from the game's `GAME.md`; the format is documented in [`docs/game-md.md`](docs/game-md.md).
 
 ## Rules
 

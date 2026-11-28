@@ -25,9 +25,14 @@
 </p>
 
 <p align="center">
+  <img src="docs/assets/blocks.gif" alt="The original Blocks and the rebuild side by side, identical state every frame" width="760">
+  <br><sub>Blocks: 36 runs against the original, 104,208 frames in total. The grid, the current and next pieces, the score and the row count match on every frame.</sub>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/license-MIT-555" alt="MIT license">
-  <img src="https://img.shields.io/badge/games-6-2563EB" alt="6 games">
-  <img src="https://img.shields.io/badge/recorded%20inputs-667%2C561-E2862A" alt="667,561 recorded inputs">
+  <img src="https://img.shields.io/badge/games-7-2563EB" alt="7 games">
+  <img src="https://img.shields.io/badge/recorded%20inputs-668%2C189-E2862A" alt="668,189 recorded inputs">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20·%20Codex-6E40C9" alt="Runs in Claude Code and Codex">
 </p>
 
@@ -115,7 +120,7 @@ Needs Node 22. Browser games also need Playwright with Chromium (`npm install --
 |---|---|
 | Web (canvas, one HTML file, mobile friendly) | every game (2048, Dino, Canvas Bird, Blocks, Bricks, Paddles, Mines), verified |
 | Rust / Bevy | 2048, Dino, Canvas Bird and Blocks as Bevy projects (`dino-core` logic verified through `dino-runner`; the Bevy window itself compiles and ran 25 s under Xvfb, never played) |
-| Godot 4.4 (GDScript) | 2048, Dino, Canvas Bird and Blocks, verified: a headless runner passes all 19 cases. A playable scene (`ports/godot/main.tscn`) loads and takes input in a headless smoke test; its look has not been checked |
+| Godot 4.4 (GDScript) | 2048, Dino, Canvas Bird and Blocks, verified: a headless runner passes every case. A playable scene (`ports/godot/main.tscn`) loads and takes input in a headless smoke test; its look has not been checked |
 | Unity (C#) | not started |
 | Capacitor (wrap the web build for iOS/Android) | not started; Capacitor wraps a web build, so it builds on the web ports |
 
