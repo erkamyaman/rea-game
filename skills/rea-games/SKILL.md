@@ -31,7 +31,7 @@ port, verify, fix, repeat. Never call a port done until `rea-games verify` says 
    after one input or frame. Read it from the live game, or, when the state is private, from what it draws.
    Cover: every kind of enemy/obstacle/item, win, lose, restart, the edges (empty, full, maximum speed), odd frame
    times, and at least one saved state that is one step from each ending. Look at what the cases really contain.
-4. **Write `GAME.md`** from the recording: constants, the order of operations inside one step, formulas, quirks
+4. **Write `GAME.md`** from the recording, following the format in [`docs/game-md.md`](../../docs/game-md.md): constants, the order of operations inside one step, formulas, quirks
    (including bugs the original has: keep them, the port must match), and what is **not** modelled and why that
    cannot change the trace.
 5. **Write the port** as pure logic: no DOM, no clock, an injected `rng`. A runner reads a case on stdin and prints
