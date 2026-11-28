@@ -1,6 +1,6 @@
 ---
 name: rea-games
-description: Reverse-engineer a game's behavior and rebuild it in another engine (web, Godot, Bevy, Unity) with proof it matches. Use when the user wants to clone, port, remake or understand how a game works, or says "rea this game". Records the original's inputs and state, writes a GAME.md spec, builds the port, and checks it frame by frame.
+description: Reverse-engineer a game's behavior and rebuild it in another engine (web, Godot, Bevy, Unity; there is no reference Unity port yet) with proof it matches. Use when the user wants to clone, port, remake or understand how a game works, or says "rea this game". Records the original's inputs and state, writes a GAME.md spec, builds the port, and checks it frame by frame.
 ---
 
 # rea-games
@@ -12,8 +12,9 @@ port, verify, fix, repeat. Never call a port done until `rea-games verify` says 
 
 1. Find out **what the original is and what licence it has**. A clean-room rebuild of behavior is fine; copying
    its art, music, names, or code is not, unless the licence allows it. Open source or permissive originals are
-   the ones to start with (see `games/*/game.json` for the three that ship). If the licence is unclear, say so and
+   the ones to start with (see `games/*/game.json` for the games that ship). If the licence is unclear, say so and
    ask before going on. Never use a trademarked name for the rebuild.
+   Vendor the original unmodified under `originals/<game>` with its licence file, and add a line to `NOTICE`.
 2. Check the tools: `node -v` (22+), and for a browser game Playwright and a Chromium (`PLAYWRIGHT_PATH`
    points at an install outside the repository; drivers load it with `loadPlaywright()` from `lib/playwright.mjs`).
 
@@ -37,10 +38,15 @@ port, verify, fix, repeat. Never call a port done until `rea-games verify` says 
    `{trace, tapeUsed}`. Do not translate the original line by line; write from `GAME.md`, then check.
 6. **Verify**: `rea-games verify <game> --port <name>`. The first difference is printed with its path
    (`trace[412].tRex.yPos: 46 != 45.5`). Fix the port, not the case. Use the number, not a guess.
-7. **Break it on purpose** once (change a constant, an offset, an off-by-one) and see `verify` fail. A check that
-   cannot fail proves nothing.
+7. **Break it on purpose** in at least three ways (change a constant, an offset, an off-by-one) and see `verify` fail
+   each time with a trace difference, not a crash. A check that cannot fail proves nothing. Put the numbers in the PR.
 8. **Play it** in the engine: a web page with your own art, then Godot/Bevy/Unity ports that run the same cases.
-   An engine port counts as verified only when it runs the cases through a runner; otherwise label it "not verified".
+   There is no reference Unity port yet, so a Unity port has no example to copy. An engine port counts as verified
+   only when it runs the cases through a runner; otherwise label it "not verified".
+9. **Register and pack.** List each port under `ports` in `game.json`: `cmd` (the runner, run from `games/<game>`),
+   optional `build` (run once before the cases), and `play` for the web page that `node scripts/bundle.mjs` turns
+   into `docs/play/<game>.html`. Then run `rea-games pack <game>`: the repository keeps cases gzipped, and a
+   successful `record` removes the old packed copies. See `CONTRIBUTING.md` for the rest of the PR checklist.
 
 ## Rules
 
