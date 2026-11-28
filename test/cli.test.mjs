@@ -127,3 +127,19 @@ export function record() {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("verify --port with no value, or followed by a flag, exits 2 with the game's ports", () => {
+  const r = run("verify", "2048", "--port", "--something");
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr.trim(), "--port needs a value (2048 has: web, godot, bevy)");
+  const end = run("verify", "2048", "--port");
+  assert.equal(end.status, 2);
+  assert.equal(end.stderr.trim(), "--port needs a value (2048 has: web, godot, bevy)");
+});
+
+test("verify reads --port=<name> like --port <name>", () => {
+  const r = run("verify", "2048", "--port=nope");
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /^2048 \/ nope$/m);
+  assert.match(r.stdout, /FAIL 2048 has no port "nope"/);
+});
