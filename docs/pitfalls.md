@@ -96,3 +96,7 @@ root-level diff.
 
 **Mines needs a reveal before flagging is possible.** When Flag mode is active on a fresh or reset board, send
 the first tap as a reveal. The timer starts on that reveal, and subsequent taps can toggle flags.
+
+**A missing folder is not an empty folder to `readdirSync`.** Reading a directory that does not exist throws
+a raw ENOENT; check `existsSync` first when "not there yet" is an expected state, so the caller can print its
+readable message instead of a file-system error.
